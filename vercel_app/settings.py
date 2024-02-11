@@ -28,7 +28,7 @@ DEBUG = True
 ALLOWED_HOSTS = ['127.0.0.1', '.vercel.app']
 # settings.py
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '::1']
+
 
 
 # Application definition
