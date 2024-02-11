@@ -3,6 +3,10 @@ from datetime import datetime
 
 from django.http import HttpResponse
 
+
+def contanct(request):
+    return HttpResponse("<h1>m name is lakhman</h1>")
+
 def index(request):
     now = datetime.now()
     html = f'''
