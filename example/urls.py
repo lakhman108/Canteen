@@ -5,6 +5,6 @@ from example.views import index
 from example import views
 
 urlpatterns = [
-    path('', index),
+    path('', views.index, name='index'),
    path('contact/',views.contanct,name="contanct"),
 ]
