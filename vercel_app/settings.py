@@ -29,9 +29,9 @@ DEBUG = True
 # ALLOWED_HOSTS = ['localhost', '.vercel.app']
 # settings.py
 
-ALLOWED_HOSTS = ['.vercel.app', '.now.sh']
+ALLOWED_HOSTS = ['localhost','.github.dev','.vercel.app', '.now.sh']
 # Or * to allow all
-ALLOWED_HOSTS = ['*']
+# ALLOWED_HOSTS = ['*']
 
 
 
@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'example',
     'database',
+    'canteen',
 ]
 
 MIDDLEWARE = [
