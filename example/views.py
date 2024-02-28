@@ -3,8 +3,10 @@ from django.contrib.auth import authenticate, login
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
-from example.forms import CustomUserLoginForm, CustomUserRegistrationForm
+from .forms import CustomUserLoginForm, CustomUserRegistrationForm
 from canteen.models import CustomUser
+from django.contrib.auth.hashers import make_password
+from django.contrib.auth.models import User
 
 def contact(request):
     return HttpResponse("<h1>m name is lakhman</h1>")
@@ -28,7 +30,7 @@ def index(request):
     #         'is_published': data.is_published
     #     })
   
-    return render(request, 'example/index.html')
+    return render(request, 'index.html')
 
 
 def custom_user_login(request):
@@ -37,23 +39,40 @@ def custom_user_login(request):
         if form.is_valid():
             username = form.cleaned_data['username']
             password = form.cleaned_data['password']
+
+            # Authenticate the user
             user = authenticate(request, username=username, password=password)
+
             if user is not None:
+                # Log in the user
                 login(request, user)
                 return redirect('example:index')
+
     else:
         form = CustomUserLoginForm()
+
     return render(request, 'login.html', {'form': form})
 
+
+
+    
+    
 def custom_user_register(request):
     if request.method == 'POST':
         form = CustomUserRegistrationForm(request.POST)
         if form.is_valid():
-            user = form.save()
+            username = form.cleaned_data['username']
+            password = form.cleaned_data['password1']
+            email = "default@gmail.com"  # Provide a default email or get it from the form
+
+            # Create the user using create_user method
+            user = User.objects.create_user(username, email, password)
+
+            # Log in the user
             login(request, user)
+
             return redirect('example:index')
     else:
         form = CustomUserRegistrationForm()
+
     return render(request, 'register.html', {'form': form})
-
-
