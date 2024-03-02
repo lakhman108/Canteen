@@ -10,6 +10,7 @@ from database.models import News
 
 @login_required
 def contact(request):
+    return HttpResponse('Contact page')
    
 
 @login_required
