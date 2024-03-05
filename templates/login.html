@@ -64,13 +64,13 @@
 <body>
     <div class="form-container">
         <h2>Login</h2>
-        <form action="{% url 'example:login' %}" method="post">
+        <form action="{% url 'canteen:login' %}" method="post">
             {% csrf_token %}
             {{ form.as_p }}
             <button type="submit">Login</button>
         </form>
         <div class="switch-form">
-            Don't have an account? <a href="{% url 'example:register' %}">Register</a>
+            Don't have an account? <a href="{% url 'canteen:register' %}">Register</a>
         </div>
     </div>
 </body>
