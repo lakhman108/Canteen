@@ -1,37 +1,10 @@
-<!DOCTYPE html>
-<html>
+<!-- home.html -->
+{% extends 'base.html' %}
 
-<head>
-  <title>Home</title>
-</head>
+{% block title %}
+Home
+{% endblock %}
 
-<body>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-
-
-  <h1>changes are reflected hostes are changed</h1>
-
-  <h1 class="text-4xl font-bold text-center text-blue-500">Welcome to the home page</h1>
-  <h2 class="text-2xl text-center text-blue-400 mb-4">Here are the latest news:</h2>
-  <!-- Add this button where you want the logout button to appear -->
-  <form action="{% url 'canteen:logout' %}" method="post">
-    {% csrf_token %}
-    <button type="submit">Logout</button>
-  </form>
-
-  {% csrf_token %}
-  {% for data in news_data %}
-  <div class="mb-6">
-    <h1 class="text-xl font-bold">title : </h1>
-    <h2 class="text-lg text-blue-600">{{data.title}}</h2>
-
-    <h1 class="text-xl font-bold">content : </h1>
-    <h2 class="text-lg text-blue-600">{{data.content}}</h2>
-  </div>
-  {% endfor %}
-
-
-
-</body>
-
-</html>
+{% block content %}
+<h1>Welcome to the Home Page</h1>
+{% endblock %}

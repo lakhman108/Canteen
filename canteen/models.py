@@ -16,8 +16,8 @@ CustomUser._meta.get_field('user_permissions').remote_field.related_name = 'cust
 
 class Orders(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    payment_status = models.CharField(max_length=255, unique=True)
-    delivery_status = models.CharField(max_length=255)
+    payment_status = models.CharField(max_length=255, default='Pending')
+    delivery_status = models.CharField(max_length=255,default='Pending')
 
 class OrderDetails(models.Model):
     order = models.ForeignKey(Orders, on_delete=models.CASCADE)
@@ -27,7 +27,7 @@ class OrderDetails(models.Model):
 class Payment(models.Model):
     order = models.OneToOneField(Orders, on_delete=models.CASCADE, related_name='payment')
     amount = models.DecimalField(max_digits=10, decimal_places=4, default=0.0000)
-    payment_status = models.ForeignKey(Orders, to_field='payment_status', on_delete=models.CASCADE, related_name='payments')
+    payment_status = models.ForeignKey(Orders, on_delete=models.CASCADE, related_name='payments')
 
 class Food(models.Model):
     name = models.CharField(max_length=255)
