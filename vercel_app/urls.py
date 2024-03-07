@@ -18,9 +18,10 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 
-
+from canteen.views import index
 
 urlpatterns = [
+    path('',index,name="index"),
     path('example/',include('example.urls')),
     path('admin/', admin.site.urls),
     path('canteen/', include('canteen.urls',namespace='canteen')),
