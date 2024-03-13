@@ -1,19 +1,66 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Cart</title>
-    <link rel="stylesheet" type="text/css" href="styles.css">
-</head>
-<body>
-    <h1>Shopping Cart</h1>
-    <div id="cart-items">
-        <!-- Cart items will be dynamically added here -->
-    </div>
-    <div id="cart-total">
-        <h3>Total: $0.00</h3>
-    </div>
-    <button id="checkout-btn">Checkout</button>
+{% extends 'base.html' %}
 
-    <script src="script.js"></script>
-</body>
-</html>
+{% block title %}
+Cart
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto my-8">
+    <h1 class="text-2xl font-bold mb-4">Your Cart</h1>
+    {% if cart_data %}
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <table class="w-full">
+            <thead>
+                <tr class="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
+                    <th class="py-3 px-6 text-left">Item</th>
+                    <th class="py-3 px-6 text-left">Price</th>
+                    <th class="py-3 px-6 text-left">Quantity</th>
+                    <th class="py-3 px-6 text-left">Total</th>
+                    <th class="py-3 px-6 text-left">Action</th>
+                </tr>
+            </thead>
+            <tbody class="text-gray-600 text-sm font-light">
+                {% for item in cart_data %}
+                <tr class="border-b border-gray-200 hover:bg-gray-100">
+                    <td class="py-3 px-6 text-left whitespace-nowrap">
+                        <div class="flex items-center">
+                            <div class="mr-2">
+                                <img class="w-12 h-12 rounded-full" src="{{ item.image_url }}" alt="{{ item.food_name }}">
+                            </div>
+                            <span class="font-medium">{{ item.food_name }}</span>
+                        </div>
+                    </td>
+                    <td class="py-3 px-6 text-left">
+                        <span>&#8377;{{ item.price }}</span>
+                    </td>
+                    <td class="py-3 px-6 text-left">
+                        <div class="flex items-center">
+                            <a href="#" onclick="updateQuantity('{{ item.order_detail_id }}', 'decrease'); return false;" class="text-gray-600 hover:text-gray-900 mr-2">
+                                <i class="fas fa-minus"></i>
+                            </a>
+                            <span>{{ item.quantity }}</span>
+                            <a href="#" onclick="updateQuantity('{{ item.order_detail_id }}', 'add'); return false;" class="text-gray-600 hover:text-gray-900 ml-2">
+                                <i class="fas fa-plus"></i>
+                            </a>
+                        </div>
+                    </td>
+                    <td class="py-3 px-6 text-left">
+                        <span>&#8377;{{ item.total_price }}</span>
+                    </td>
+                    <td class="py-3 px-6 text-left">
+                        <a href="#" onclick="updateQuantity('{{ item.order_detail_id }}', 'remove'); return false;" class="text-red-600 hover:text-red-900">Remove</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="mt-8 flex justify-between">
+        <a href="{% url 'canteen:index' %}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Continue Shopping</a>
+        <button class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">Proceed to Checkout</button>
+    </div>
+    {% else %}
+    <p>Your cart is empty.</p>
+    {% endif %}
+</div>
+{% endblock %}

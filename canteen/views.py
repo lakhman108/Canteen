@@ -11,7 +11,7 @@ from django.contrib.auth.models import User
 from django.contrib import messages
 from django.contrib.auth import logout
 from django.http import Http404, HttpResponseRedirect
-from .models import Food, FoodDetails
+from .models import Food, FoodDetails,Orders,OrderDetails,Payment
 from django.urls import reverse
 
 @login_required
@@ -46,6 +46,7 @@ def custom_user_login(request):
 
             if user is not None:
                 # Log in the user
+                request.session['user_id'] = user.id
                 login(request, user)
                 return redirect('canteen:index')
             else:
@@ -66,11 +67,11 @@ def custom_user_register(request):
             email = username+"@gmail.com"  # Get email from the form
 
             # Create the user using create_user method
-            user = User.objects.create_user(username, email, password)
+            user = CustomUser.objects.create_user(username, email, password)
 
             # Log in the user
             login(request, user)
-
+            request.session['user_id'] = user.id
             return redirect('canteen:index')
         else:
             messages.error(request, 'Invalid form data.')
@@ -116,12 +117,63 @@ def show_items(request):
 #         return HttpResponseRedirect(reverse("canteen:index"),{'alert':alert})
 #     return render(request, 'cart.html',{'alert':alert});
 
+def get_last_order(user_id):
+    try:
+        # Get the latest order for the user
+        last_order = Orders.objects.filter(user_id=user_id).latest('id')
+        return last_order
+    except Orders.DoesNotExist:
+        # Handle the case where no orders exist for the user
+        return None  # Return None instead of a string
+
+def items_exits_in_last_order(order_id, food_id):
+    try:
+        # Check if the item exists in the order
+        return OrderDetails.objects.get(order_id=order_id, item_id=food_id)
+    except OrderDetails.DoesNotExist:
+        # Handle the case where the item is not found in the order
+        return None  # Return None instead of a string
 
 def cart(request):
     alert = ""
+    cart_data = []
     if request.method == 'POST':
         food_id = request.POST.get('item_id')
-        print(food_id)
+        user_id = request.session.get('user_id')
+
+        last_order = get_last_order(user_id)
+        if last_order is None:
+            order = Orders(user_id=user_id, payment_status='Pending', delivery_status='Pending')
+            order.save()
+        else:
+            order = last_order
+
+        # Check if the item exists in the last order
+        order_detail = items_exits_in_last_order(order.id, food_id)
+        if order_detail is not None:
+            # If the item exists, increment its quantity
+            order_detail.qty += 1
+            order_detail.save()
+        else:
+            # If the item does not exist, create a new OrderDetails instance
+            order_detail = OrderDetails(order=order, item_id=food_id, qty=1)
+            order_detail.save()
+
         alert = "Added to cart"
-        return HttpResponseRedirect(f"{reverse('canteen:index')}?alert={alert}")
-    return render(request, 'cart.html', {'alert': alert})
+        return HttpResponseRedirect(reverse('canteen:index'))
+
+    user_orders = Orders.objects.filter(user_id=request.session.get('user_id'))
+    for order in user_orders:
+        order_details = OrderDetails.objects.filter(order=order)
+        for detail in order_details:
+            food = FoodDetails.objects.get(id=detail.item_id)
+            cart_data.append({
+                'food_id': food.id,
+                'food_name': food.name,
+                'quantity': detail.qty,
+                'price': food.price,
+                'image_url': food.photo_url,
+                'total_price': food.price * detail.qty
+            })
+
+    return render(request, 'cart.html', {'alert': alert, 'cart_data': cart_data})
