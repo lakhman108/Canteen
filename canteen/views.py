@@ -6,7 +6,7 @@ from .forms import CustomUserLoginForm, CustomUserRegistrationForm
 from .models import CustomUser
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import User
-from database.models import News
+
 from django.contrib import messages
 from django.contrib.auth import logout
 
@@ -21,18 +21,8 @@ def index(request):
     print(request.user)
     print(request.GET.get('next'))
 
-    newsdata = News.objects.all()
-    news_data = []
-    for data in newsdata:
-        news_data.append({
-            'title': data.title,
-            'content': data.content,
-            'created_at': data.created_at,
-            'updated_at': data.updated_at,
-            'is_published': data.is_published
-        })
-    
-    return render(request, 'index.html', {'news_data': news_data})
+   
+    return render(request, 'index.html')
 
 def custom_user_login(request):
     if request.method == 'POST':

@@ -1,11 +1,16 @@
+
+
+from django.apps import apps
 from django.contrib import admin
 
-# Register your models here.
-from .models import CustomUser, Orders, OrderDetails, Payment, Food, FoodDetails
+# Get all models from the current app
+models = apps.get_app_config('canteen').get_models()
 
-admin.site.register(CustomUser)
-admin.site.register(Orders)
-admin.site.register(OrderDetails)
-admin.site.register(Payment)
-admin.site.register(Food)
-admin.site.register(FoodDetails)
+# Loop through all models
+for model in models:
+    # Create a dynamic admin class
+    class ModelAdmin(admin.ModelAdmin):
+        list_display = [field.name for field in model._meta.fields]
+
+    # Register the model with the dynamic admin class
+    admin.site.register(model, ModelAdmin)

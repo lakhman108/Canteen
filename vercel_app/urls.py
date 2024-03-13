@@ -22,7 +22,7 @@ from canteen.views import index
 
 urlpatterns = [
     path('',index,name="index"),
-    path('example/',include('example.urls')),
+    
     path('admin/', admin.site.urls),
     path('canteen/', include('canteen.urls',namespace='canteen')),
 ]
