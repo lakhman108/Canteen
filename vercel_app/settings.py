@@ -49,6 +49,8 @@ INSTALLED_APPS = [
     
     'database',
     'canteen',
+'rest_framework',
+
 ]
 
 MIDDLEWARE = [

@@ -18,13 +18,30 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 
+
+
 from canteen.views import index
+
+
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from database.views import CustomUserViewSet, OrdersViewSet, FoodViewSet, FoodDetailsViewSet, OrderDetailsViewSet, PaymentViewSet
+
+router = DefaultRouter()
+router.register(r'customusers', CustomUserViewSet)
+router.register(r'orders', OrdersViewSet)
+router.register(r'food', FoodViewSet)
+router.register(r'fooddetails', FoodDetailsViewSet)
+router.register(r'orderdetails', OrderDetailsViewSet)
+router.register(r'payment', PaymentViewSet)
+
 
 urlpatterns = [
     path('',index,name="index"),
     
     path('admin/', admin.site.urls),
     path('canteen/', include('canteen.urls',namespace='canteen')),
+    path('api/', include(router.urls)),
 ]
 
 # add at the last
