@@ -1,5 +1,6 @@
 from urllib.request import HTTPRedirectHandler
 from django.contrib.auth import authenticate, login
+from django.contrib.sites import requests
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect ,HttpResponse
 from django.contrib.auth.decorators import login_required
@@ -117,70 +118,113 @@ def show_items(request):
 #         return HttpResponseRedirect(reverse("canteen:index"),{'alert':alert})
 #     return render(request, 'cart.html',{'alert':alert});
 
-def get_last_order(user_id):
-    try:
-        # Get the latest order for the user
-        last_order = Orders.objects.filter(user_id=user_id).latest('id')
-        return last_order
-    except Orders.DoesNotExist:
-        # Handle the case where no orders exist for the user
-        return None  # Return None instead of a string
+import requests
+from django.http import HttpResponse
 
-def items_exits_in_last_order(order_id, food_id):
-    try:
-        # Check if the item exists in the order
-        return OrderDetails.objects.get(order_id=order_id, item_id=food_id)
-    except OrderDetails.DoesNotExist:
-        # Handle the case where the item is not found in the order
-        return None  # Return None instead of a string
 
-def cart(request):
-    alert = ""
-    cart_data = []
-    if request.method == 'POST':
-        food_id = request.POST.get('item_id')
-        user_id = request.session.get('user_id')
 
-        last_order = get_last_order(user_id)
-        if last_order is None:
-            order = Orders(user_id=user_id, payment_status='Pending', delivery_status='Pending')
-            order.save()
-        else:
-            order = last_order
+def get_cart_data(user_id):
+    cart_data=[]
+    url = f'http://localhost:8000/api/customusers/{user_id}/orders/'
 
-        # Check if the item exists in the last order
-        order_detail = items_exits_in_last_order(order.id, food_id)
-        if order_detail is not None:
-            # If the item exists, increment its quantity
-            order_detail.qty += 1
-            order_detail.save()
-        else:
-            # If the item does not exist, create a new OrderDetails instance
-            order_detail = OrderDetails(order=order, item_id=food_id, qty=1)
-            order_detail.save()
+    response = requests.get(url)
 
-        alert = "Added to cart"
-        return HttpResponseRedirect(reverse('canteen:index'))
+    if response.status_code == 200:
+        data = response.json()
+        order_id = data[0]['id']
+        print(order_id)
+        url = f'http://localhost:8000/api/orders/{order_id}/orderdetails/'
+        order_details_response = requests.get(url)
+        if response.status_code == 200:
+            order_details_response = order_details_response.json()
 
-    user_orders = Orders.objects.filter(user_id=request.session.get('user_id'))
-    for order in user_orders:
-        order_details = OrderDetails.objects.filter(order=order)
-        for detail in order_details:
-            food = FoodDetails.objects.get(id=detail.item_id)
+        for detail in order_details_response:
+            item = detail['item']
             cart_data.append({
-                'food_id': food.id,
-                'food_name': food.name,
-                'quantity': detail.qty,
-                'price': food.price,
-                'image_url': food.photo_url,
-                'total_price': food.price * detail.qty
+                'order_details_id': detail['id'],  # This is the order details ID, not the item ID
+                'food_id': item['id'],
+                'food_name': item['name'],
+                'price': item['price'],
+                'image_url': item['photo_url'],
+                'quantity': detail['qty'],
+                'total_price': item['price'] * detail['qty'],
             })
 
-    return render(request, 'cart.html', {'alert': alert, 'cart_data': cart_data})
+        return cart_data;
+def cart(request):
+    cart_data = []
+    user_id = request.session['user_id']
+
+    if request.method != 'POST':
+
+        cart_data = get_cart_data(user_id)
 
 
+        # Process the data as needed
+        return render(request, 'cart.html', {'cart_data': cart_data})
+    else:
+        item_id = request.POST['item_id']
+
+        url = f'http://localhost:8000/api/orderdetails/'
+        data = {
+            'user': int(user_id),
+            'item': int(item_id),
+            'qty': int(1),
+        }
+        response = requests.post(url, data=data)
+
+
+        return redirect('canteen:index')
 def about(request):
     return render(request,"about.html");
 
 def contact(request):
     return render(request,"contact.html");
+
+
+def remove_order_detail(request, order_detail_id):
+    url = f'http://localhost:8000/api/orderdetails/{order_detail_id}/'
+    response = requests.delete(url)
+
+    if response.status_code == 204:
+        # OrderDetails object successfully deleted
+        return redirect('canteen:cart')
+    else:
+        # Handle the error case
+        return redirect('canteen:cart')
+
+
+
+# views.py
+import requests
+from django.shortcuts import render, redirect
+
+def update_order_detail_quantity(request, order_detail_id, action):
+    url = f'http://localhost:8000/api/orderdetails/{order_detail_id}/'
+
+    if action == 'add':
+        quantity_change = 1
+    elif action == 'decrease':
+        quantity_change = -1
+    else:
+        return redirect('canteen:cart')  # Invalid action, redirect to cart view
+
+    # Get the current order detail data
+    response = requests.get(url)
+    if response.status_code == 200:
+        data = response.json()
+        order_id = data['order']
+        new_quantity = data['qty'] + quantity_change
+
+        if new_quantity < 1:
+            # If the new quantity is less than 1, delete the order detail
+            requests.delete(url)
+        else:
+            # Update the order detail quantity
+            payload = {
+                'order': order_id,
+                'qty': new_quantity
+            }
+            requests.put(url, json=payload)
+
+    return redirect('canteen:cart')
