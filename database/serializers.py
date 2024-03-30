@@ -24,7 +24,7 @@ class FoodDetailsRelatedField(serializers.RelatedField):
             'name': food_details.name,
             'price': food_details.price,
             'photo_url': food_details.photo_url,
-            # 'url': f'http://localhost:8000/api/fooddetails/{food_details.id}/'  # Include the item URL here
+            # 'url': f'https://www.canteenmanagement.live/api/fooddetails/{food_details.id}/'  # Include the item URL here
         }
 class FoodDetailsSerializer(serializers.ModelSerializer):
     class Meta:

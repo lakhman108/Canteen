@@ -97,7 +97,7 @@ This example uses the Web Server Gateway Interface (WSGI) with Django to enable 
 python manage.py runserver
 ```
 
-Your Django application is now available at `http://localhost:8000`.
+Your Django application is now available at `https://www.canteenmanagement.live`.
 
 ## One-Click Deploy
 
