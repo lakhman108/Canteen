@@ -169,3 +169,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_REDIRECT_URL = 'canteen:index'
 LOGIN_URL = 'canteen:login'
 AUTH_USER_MODEL = 'canteen.CustomUser'
+
+
+RAZORPAY_KEY_ID = 'rzp_test_JTePD1c5RLT3nj'
+RAZORPAY_KEY_SECRET='7p5e6T5NGyUl4fgOJAYYIzze'

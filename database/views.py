@@ -1,3 +1,4 @@
+from django.http import HttpResponse
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny
@@ -99,11 +100,13 @@ class OrderDetailsViewSet(viewsets.ModelViewSet):
         order_detail = OrderDetails.objects.filter(order=order, item_id=item_id).first()
         food_details = FoodDetails.objects.get(id=item_id)
 
+        food_details.stock_qty -= qty
+        food_details.save()
+
         if order_detail:
             # If the item already exists, update the quantity
             order_detail.qty += qty
-            food_details.stock_qty -= qty
-            food_details.save()
+
             order_detail.save()
 
 
@@ -122,6 +125,14 @@ class PaymentViewSet(viewsets.ModelViewSet):
     queryset = Payment.objects.all()
     serializer_class = PaymentSerializer
     permission_classes = [AllowAny]  # Allow unauthenticated access
+    # print("PaymentViewSet")
+    @action(detail=True, methods=['get'])
+    def paymentdeatils(self, request, pk=None):
+        order = Orders.objects.get(pk=pk)
+        payment_details = Payment.objects.filter(order=order)
+
+        payment_details = PaymentSerializer(payment_details, many=True, context={'request': request})
+        return Response(payment_details.data)
 
     def create(self, request):
         user_id = request.data['user']
@@ -145,7 +156,7 @@ class PaymentViewSet(viewsets.ModelViewSet):
             payment = Payment.objects.create(order=order, amount=total_amount)
 
         # Processing payment
-        order.payment_status = 'Paid'
+        order.payment_status = 'Pending'
         order.save()
 
         # Serialize the payment instance
@@ -155,3 +166,5 @@ class PaymentViewSet(viewsets.ModelViewSet):
             'message': 'Payment processed successfully.'
         }
         return Response(data, status=status.HTTP_201_CREATED)
+
+

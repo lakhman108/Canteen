@@ -57,7 +57,7 @@ Cart
     </div>
     <div class="mt-8 flex justify-between">
         <a href="{% url 'canteen:index' %}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Continue Shopping</a>
-        <button class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">Proceed to Checkout</button>
+        <a href="{% url 'canteen:payment' %}" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">Proceed to Checkout</a>
     </div>
     {% else %}
     <p>Your cart is empty.</p>

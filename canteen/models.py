@@ -50,4 +50,8 @@ class OrderDetails(models.Model):
 class Payment(models.Model):
     order = models.OneToOneField(Orders, on_delete=models.CASCADE, related_name='payment')
     amount = models.DecimalField(max_digits=10, decimal_places=4, default=0.0000)
+    created_at = models.DateTimeField(default=timezone.now,null=True, blank=True)
+    razorpay_order_id=models.CharField(max_length=100,null=True, blank=True)
+    razorpay_payment_id=models.CharField(max_length=100,null=True, blank=True)
+    razorpay_signature=models.CharField(max_length=100,null=True, blank=True)
 
