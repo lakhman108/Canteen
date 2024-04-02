@@ -4,7 +4,7 @@ from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.sites import requests
 from django.shortcuts import render, redirect
-
+from django.conf import settings
 from .forms import CustomUserLoginForm, CustomUserRegistrationForm
 from .models import CustomUser
 from .models import FoodDetails
@@ -95,7 +95,7 @@ from django.http import HttpResponse
 
 
 def get_order_id(user_id):
-    url = f'http://localhost:8000/api/customusers/{user_id}/orders/'
+    url = f'{settings.API_URL}/customusers/{user_id}/orders/'
 
     response = requests.get(url)
 
@@ -110,7 +110,7 @@ def get_order_id(user_id):
 
 
 def get_orderdetails(order_id):
-    url = f'http://localhost:8000/api/orders/{order_id}/orderdetails/'
+    url = f'{settings.API_URL}/orders/{order_id}/orderdetails/'
     response = requests.get(url)
     if response.status_code == 200:
         data = response.json()
@@ -147,7 +147,7 @@ def get_cart_data(user_id):
                 'total_price': item['price'] * detail['qty'],
         })
 
-    return cart_data;
+    return cart_data
 
 
 def cart(request):
@@ -163,7 +163,7 @@ def cart(request):
     else:
         item_id = request.POST['item_id']
 
-        url = f'http://localhost:8000/api/orderdetails/'
+        url = f'{settings.API_URL}/orderdetails/'
         data = {
             'user': int(user_id),
             'item': int(item_id),
@@ -183,7 +183,7 @@ def contact(request):
 
 
 def remove_order_detail(request, order_detail_id):
-    url = f'http://localhost:8000/api/orderdetails/{order_detail_id}/'
+    url = f'{settings.API_URL}/orderdetails/{order_detail_id}/'
     response = requests.delete(url)
 
     if response.status_code == 204:
@@ -195,7 +195,7 @@ def remove_order_detail(request, order_detail_id):
 
 
 def update_order_detail_quantity(request, order_detail_id, action):
-    url = f'http://localhost:8000/api/orderdetails/{order_detail_id}/'
+    url = f'{settings.API_URL}/orderdetails/{order_detail_id}/'
 
     if action == 'add':
         quantity_change = 1
@@ -243,7 +243,7 @@ def payment(request):
         'razorpay_order_id': payment['id'],
     }
 
-    url = f'http://localhost:8000/api/payment/'
+    url = f'{settings.API_URL}/payment/'
     response = requests.post(url, data=payment_data)
     if response.status_code == 201:
         print("Payment created successfully")
@@ -293,7 +293,7 @@ def payment(request):
     }
 
     try:
-        url = f'http://localhost:8000/api/payment/'
+        url = f'{settings.API_URL}/payment/'
         response = requests.post(url, data=payment_data)
         response.raise_for_status()  # Raise an exception for non-2xx status codes
         if response.status_code == 201:
@@ -337,14 +337,14 @@ def sucess(request):
     }
 
     try:
-        url = f'http://localhost:8000/api/payment/{get_order_id(user_id)}/paymentdeatils/'
+        url = f'{settings.API_URL}/payment/{get_order_id(user_id)}/paymentdeatils/'
         response = requests.get(url)
         response.raise_for_status()  # Raise an exception for non-2xx status codes
 
         if response.status_code == 200:
             data = response.json()
             payment_id = data[0]['id']
-            url = f'http://localhost:8000/api/payment/{payment_id}/'
+            url = f'{settings.API_URL}/payment/{payment_id}/'
             response = requests.put(url, data=payment_data)
             response.raise_for_status()  # Raise an exception for non-2xx status codes
             print(data)
@@ -354,7 +354,7 @@ def sucess(request):
         messages.error(request, "Error occurred while updating payment details.")
 
     try:
-        url = f'http://localhost:8000/api/orders/{get_order_id(user_id)}/'
+        url = f'{settings.API_URL}/orders/{get_order_id(user_id)}/'
         data = {
             "payment_status": "Paid",
             "user": user_id

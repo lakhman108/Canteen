@@ -29,7 +29,7 @@ DEBUG = True
 # ALLOWED_HOSTS = ['localhost', '.vercel.app']
 # settings.py
 
-ALLOWED_HOSTS = ['www.canteenmanagement.live','localhost','.github.dev','.vercel.app', '.now.sh']
+ALLOWED_HOSTS = ['www.canteenmanagement.live','localhost','127.0.0.1','.github.dev','.vercel.app', '.now.sh']
 # Or * to allow all
 #this is easy
 
@@ -169,6 +169,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_REDIRECT_URL = 'canteen:index'
 LOGIN_URL = 'canteen:login'
 AUTH_USER_MODEL = 'canteen.CustomUser'
+API_URL='http://localhost:8000/api'
 
 
 RAZORPAY_KEY_ID = 'rzp_test_JTePD1c5RLT3nj'
