@@ -41,6 +41,8 @@ urlpatterns = [
     
     path('admin/', admin.site.urls),
     path('canteen/', include('canteen.urls',namespace='canteen')),
+    path('admin_panel/', include('admin_panel.urls',namespace='admin_panel')),
+    
     path('api/', include(router.urls)),
 ]
 
