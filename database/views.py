@@ -61,12 +61,23 @@ class FoodViewSet(viewsets.ModelViewSet):
     queryset = Food.objects.all()
     serializer_class = FoodSerializer
     permission_classes = [AllowAny]  # Allow unauthenticated access
+    
+    @action(detail=True, methods=['get'])
+    def fooddetails(self, request, pk=None):
+     food = Food.objects.get(pk=pk)
+     food_details = FoodDetails.objects.filter(food=food)
+     food_details = FoodDetailsSerializer(food_details, many=True, context={'request': request})
+     return Response(food_details.data)
 
 
 class FoodDetailsViewSet(viewsets.ModelViewSet):
     queryset = FoodDetails.objects.all()
     serializer_class = FoodDetailsSerializer
-    permission_classes = [AllowAny]  # Allow unauthenticated access
+    permission_classes = [AllowAny]  
+    
+    
+        
+    # Allow unauthenticated access
 
 
 from rest_framework import viewsets, status

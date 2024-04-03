@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Category</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 font-sans">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="relative flex flex-col items-center justify-between h-16 sm:flex-row">
+
+            <div class="hidden sm:block sm:ml-6">
+                <div class="flex justify-center space-x-4 sm:justify-between">
+
+                    <form action="{% url 'admin_panel:filter' %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit" name="category" value="all"
+                                class="bg-white hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow">
+                            ALL
+                        </button>
+                        <button type="submit" name="category" value="Gujarati_items"
+                                class="bg-white hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow">
+                            Gujarati Dishes
+                        </button>
+                        <button type="submit" name="category" value="Punjabi_items"
+                                class="bg-white hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow">
+                            Punjabi Dishes
+                        </button>
+                        <button type="submit" name="category" value="Chinese_items"
+                                class="bg-white hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow">
+                            Chinese Dishes
+                        </button>
+                        <button type="submit" name="category" value="South_Indian_items"
+                                class="bg-white hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow">
+                            South Indian Dishes
+                        </button>
+                        <button type="submit" name="category" value="Snacks_items"
+                                class="bg-white hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow">
+                            Snacks
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container mx-auto px-4 py-8">
+        <h3 class="text-3xl font-semibold mb-4">Admin Panel - Item List</h3>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {% for item in data %}
+            <div class="relative rounded-lg overflow-hidden shadow-md bg-white">
+                <button onclick="openModal('{{ item.id }}')" class="absolute top-0 right-0 m-2 bg-blue-500 text-white text-sm font-bold py-1 px-2 rounded-lg">Edit</button>
+                <img class="w-full h-48 object-cover object-center" src="{{ item.photo_url }}" alt="{{ item.name }}">
+                <div class="p-4">
+                    <h4 class="text-xl font-semibold mb-2">{{ item.name }}</h4>
+                    <p class="text-gray-700 mb-2">Availability: {{ item.stock_qty }}</p>
+                    <div class="flex justify-between">
+                        <p class="text-gray-700">Price: ${{ item.price }}</p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Modal -->
+        <div id="editModal" class="hidden fixed top-0 left-0 z-50 w-full h-full bg-gray-800 bg-opacity-50">
+            <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-6 rounded shadow-md">
+                <span onclick="closeModal()" class="absolute top-2 right-2 text-gray-600 cursor-pointer">&times;</span>
+                <div class="w-80 mx-auto">
+                    <h2 class="text-2xl font-semibold mb-4">Edit Item</h2>
+                    <form id="editForm">
+                        {% csrf_token %}
+                        <input type="hidden" name="id" id="itemId">
+                        <!-- Hidden input field to store food ID -->
+                        <input type="hidden" name="food" id="itemFoodIdHidden">
+                        <input type="text" name="name" id="itemName" placeholder="Item Name" class="block w-full border border-gray-300 rounded py-2 px-3 mb-3 focus:outline-none focus:border-blue-500">
+                        <input type="text" name="stock_qty" id="itemStockQty" placeholder="Stock Quantity" class="block w-full border border-gray-300 rounded py-2 px-3 mb-3 focus:outline-none focus:border-blue-500">
+                        <input type="text" name="price" id="itemPrice" placeholder="Price" class="block w-full border border-gray-300 rounded py-2 px-3 mb-3 focus:outline-none focus:border-blue-500">
+                        <input type="text" name="photo_url" id="itemPhotoUrl" placeholder="Photo URL" class="block w-full border border-gray-300 rounded py-2 px-3 mb-3 focus:outline-none focus:border-blue-500">
+                        <div class="flex justify-center">
+                            <button onclick="saveChanges()" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mr-2" type="button" id="save">Save</button>
+                            <button onclick="removeItem()" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="button">Delete</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            function openModal(itemId) {
+                fetch(`/api/fooddetails/${itemId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById('itemId').value = data.id;
+                        document.getElementById('itemName').value = data.name;
+                        document.getElementById('itemStockQty').value = data.stock_qty;
+                        document.getElementById('itemPrice').value = data.price;
+                        document.getElementById('itemPhotoUrl').value = data.photo_url;
+                        // Set the hidden input field value for food ID
+                        document.getElementById('itemFoodIdHidden').value = data.food;
+
+                        document.getElementById('editModal').classList.remove('hidden');
+                    })
+                    .catch(error => {
+                        console.error('Error fetching item details:', error);
+                    });
+            }
+
+            function closeModal() {
+                document.getElementById('editModal').classList.add('hidden');
+            }
+
+            function saveChanges() {
+                const form = document.getElementById('editForm');
+                const formData = new FormData(form);
+                const itemId = formData.get('id');
+            
+                fetch(`/api/fooddetails/${itemId}/`, {
+                    method: 'PUT',
+                    body: formData,
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}', // Assuming you're using Django's CSRF protection
+                    }
+                })
+                .then(response => {
+                    if (response.ok) {
+                        console.log('Changes saved successfully');
+                        closeModal();
+                        location.reload(); // Reload the page after successful update
+                    } else {
+                        console.error('Error saving changes:', response.statusText);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error saving changes:', error);
+                });
+            }
+            
+            function removeItem() {
+                const form = document.getElementById('editForm');
+                const formData = new FormData(form);
+                const itemId = formData.get('id');
+            
+                fetch(`/api/fooddetails/${itemId}/`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}', // Assuming you're using Django's CSRF protection
+                    }
+                })
+                .then(response => {
+                    if (response.ok) {
+                        console.log('Item deleted successfully');
+                        closeModal();
+                        location.reload(); // Reload the page after successful deletion
+                    } else {
+                        console.error('Error deleting item:', response.statusText);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error deleting item:', error);
+                });
+            }
+        </script>
+    </div>
+</body>
+</html>
