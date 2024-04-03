@@ -1,5 +1,3 @@
-
-
 from django.http import HttpResponse
 from rest_framework import viewsets
 from rest_framework.decorators import action
@@ -76,6 +74,21 @@ class FoodDetailsViewSet(viewsets.ModelViewSet):
     queryset = FoodDetails.objects.all()
     serializer_class = FoodDetailsSerializer
     permission_classes = [AllowAny]  # Allow unauthenticated access
+
+    @action(detail=False, methods=['POST'])
+    def additem(self, request):
+        name = request.data['name']
+        price = request.data['price']
+        photo_url = request.data['photo_url']
+        stock_qty = request.data['stock_qty']
+        food=request.data['food']
+
+        food=Food.objects.get(id=food)
+        fooddetails=FoodDetails.objects.create(name=name,price=price,photo_url=photo_url,stock_qty=stock_qty,food=food)
+
+        fooddetails.save()
+        return Response({'message': 'Item added successfully.'}, status=status.HTTP_201_CREATED)
+
 
 
 from rest_framework import viewsets, status

@@ -5,19 +5,19 @@ from canteen.models import CustomUser, Orders, Food, FoodDetails, OrderDetails, 
 class CustomUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = '_all_'
+        fields = '__all__'
 
 
 class OrdersSerializer(serializers.ModelSerializer):
     class Meta:
         model = Orders
-        fields = '_all_'
+        fields = '__all__'
 
 
 class FoodSerializer(serializers.ModelSerializer):
     class Meta:
         model = Food
-        fields = '_all_'
+        fields = '__all__'
 
 
 class FoodDetailsRelatedField(serializers.RelatedField):
@@ -36,7 +36,7 @@ class FoodDetailsRelatedField(serializers.RelatedField):
 class FoodDetailsSerializer(serializers.ModelSerializer):
     class Meta:
         model = FoodDetails
-        fields = '_all_'
+        fields = '__all__'
 
 
 class OrderDetailsSerializer(serializers.ModelSerializer):
@@ -50,4 +50,4 @@ class OrderDetailsSerializer(serializers.ModelSerializer):
 class PaymentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Payment
-        fields = '_all_'
+        fields = '__all__'
