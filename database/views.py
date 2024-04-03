@@ -1,12 +1,14 @@
+
+
 from django.http import HttpResponse
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
+from database.serializers import CustomUserSerializer, OrdersSerializer
 from canteen.models import CustomUser, Orders, Food, FoodDetails, OrderDetails, Payment
-from .serializers import CustomUserSerializer, OrdersSerializer, FoodSerializer, FoodDetailsSerializer, \
-    OrderDetailsSerializer, PaymentSerializer
+from .serializers import *
 
 
 def get_last_order(user_id):
@@ -38,12 +40,14 @@ class OrdersViewSet(viewsets.ModelViewSet):
     queryset = Orders.objects.all()
     serializer_class = OrdersSerializer
     permission_classes = [AllowAny]  # Allow unauthenticated access
+
     @action(detail=True, methods=['get'])
     def orderdetails(self, request, pk=None):
         order = Orders.objects.get(pk=pk)
         order_details = OrderDetails.objects.filter(order=order)
         order_details = OrderDetailsSerializer(order_details, many=True, context={'request': request})
         return Response(order_details.data)
+
     def create(self, request):
 
         user_id = request.data['user']  # Get the authenticated user's ID
@@ -55,34 +59,29 @@ class OrdersViewSet(viewsets.ModelViewSet):
             return Response({'message': 'New order created.'}, status=status.HTTP_201_CREATED)
         else:
             return Response({'message': 'Last order is still pending.'}, status=status.HTTP_200_OK)
+    @action(detail=False, methods=['get'])
+    def remainingorders(self, request):
+        pending_orders = Orders.objects.filter(delivery_status='Pending')
+        serializer = self.get_serializer(pending_orders, many=True)
+        return Response(serializer.data)
 
 
 class FoodViewSet(viewsets.ModelViewSet):
     queryset = Food.objects.all()
     serializer_class = FoodSerializer
     permission_classes = [AllowAny]  # Allow unauthenticated access
-    
-    @action(detail=True, methods=['get'])
-    def fooddetails(self, request, pk=None):
-     food = Food.objects.get(pk=pk)
-     food_details = FoodDetails.objects.filter(food=food)
-     food_details = FoodDetailsSerializer(food_details, many=True, context={'request': request})
-     return Response(food_details.data)
 
 
 class FoodDetailsViewSet(viewsets.ModelViewSet):
     queryset = FoodDetails.objects.all()
     serializer_class = FoodDetailsSerializer
-    permission_classes = [AllowAny]  
-    
-    
-        
-    # Allow unauthenticated access
+    permission_classes = [AllowAny]  # Allow unauthenticated access
 
 
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from canteen.models import CustomUser, Orders, FoodDetails, OrderDetails
+
 
 class OrderDetailsViewSet(viewsets.ModelViewSet):
     queryset = OrderDetails.objects.all()
@@ -97,13 +96,13 @@ class OrderDetailsViewSet(viewsets.ModelViewSet):
         # Get the latest order for the user
         order = Orders.objects.filter(user_id=user_id).order_by('-id').first()
 
-        item_qty=FoodDetails.objects.get(id=item_id).stock_qty
-        item_qty=int(item_qty)
-        qty=int(qty)
+        item_qty = FoodDetails.objects.get(id=item_id).stock_qty
+        item_qty = int(item_qty)
+        qty = int(qty)
         if qty > item_qty:
             return Response({'message': 'Not enough stock'}, status=status.HTTP_400_BAD_REQUEST)
 
-        if not order:
+        if not order or order.delivery_status != 'Pending':
             # If there is no order, create a new one
             order = Orders.objects.create(user_id=user_id, delivery_status='Pending', payment_status='Pending')
 
@@ -120,22 +119,26 @@ class OrderDetailsViewSet(viewsets.ModelViewSet):
 
             order_detail.save()
 
-
-
             return Response({'message': 'Item quantity updated in cart.'}, status=status.HTTP_200_OK)
         else:
             # If the item doesn't exist, create a new order detail
             order_detail = OrderDetails.objects.create(order=order, item_id=item_id, qty=qty)
             return Response({'message': 'Item added to cart.'}, status=status.HTTP_201_CREATED)
 
+
+
+
+
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from canteen.models import Orders, OrderDetails, Payment
+
 
 class PaymentViewSet(viewsets.ModelViewSet):
     queryset = Payment.objects.all()
     serializer_class = PaymentSerializer
     permission_classes = [AllowAny]  # Allow unauthenticated access
+
     # print("PaymentViewSet")
     @action(detail=True, methods=['get'])
     def paymentdeatils(self, request, pk=None):
@@ -177,5 +180,3 @@ class PaymentViewSet(viewsets.ModelViewSet):
             'message': 'Payment processed successfully.'
         }
         return Response(data, status=status.HTTP_201_CREATED)
-
-

@@ -10,6 +10,24 @@ from .models import CustomUser
 from .models import FoodDetails
 import razorpay
 
+@login_required
+def filteritems(request):
+    category = request.POST.get('category')
+    print(category)
+    if category == 'all':
+        raw_data = FoodDetails.objects.all().order_by('id')
+    else:
+        raw_data = FoodDetails.objects.filter(food__name=category).order_by('food_id')
+    print(category)
+    for item in raw_data:
+        print(item)
+
+    data = []
+    for item in raw_data:
+        data.append({'id': item.id, 'name': item.name, 'stock_qty': item.stock_qty, 'price': item.price,
+                     'photo_url': item.photo_url})
+
+    return render(request, 'index.html', {'data': data})
 
 @login_required
 def contact(request):
