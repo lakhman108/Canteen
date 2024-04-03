@@ -1,5 +1,3 @@
-
-
 from django.apps import apps
 from django.contrib import admin
 
@@ -8,17 +6,9 @@ models = apps.get_app_config('canteen').get_models()
 
 # Loop through all models
 for model in models:
-
     # Create a dynamic admin class
     class ModelAdmin(admin.ModelAdmin):
         list_display = [field.name for field in model._meta.fields]
 
     # Register the model with the dynamic admin class
     admin.site.register(model, ModelAdmin)
-
-# from django.contrib import admin
-# from .models import FoodDetails
-#
-# @admin.register(FoodDetails)
-# class FoodDetailsAdmin(admin.ModelAdmin):
-#     change_list_template = 'admin/canteen/fooddetails/change_list.html'
