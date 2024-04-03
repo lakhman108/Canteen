@@ -170,7 +170,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_REDIRECT_URL = 'canteen:index'
 LOGIN_URL = 'canteen:login'
 AUTH_USER_MODEL = 'canteen.CustomUser'
-API_URL='http://localhost:8000/api'
+API_URL='www.canteenmanagement.live/api'
 
 
 RAZORPAY_KEY_ID = 'rzp_test_JTePD1c5RLT3nj'
