@@ -4,6 +4,7 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.sites import requests
+from django.http import request
 from django.shortcuts import render, redirect
 
 from canteen.models import *
@@ -12,18 +13,17 @@ from canteen.views import calculate_total_amount
 
 @staff_member_required
 def filter_and_render(request):
-   if request.method == 'POST':
+    if request.method == 'POST':
         category = request.POST.get('category')
         raw_data = FoodDetails.objects.filter(food__name=category).order_by('id')
-   else:
+    else:
         category = 'all'
         raw_data = FoodDetails.objects.all().order_by('id')
 
-   data = [{'id': item.id, 'name': item.name, 'stock_qty': item.stock_qty,
+    data = [{'id': item.id, 'name': item.name, 'stock_qty': item.stock_qty,
              'price': item.price, 'photo_url': item.photo_url} for item in raw_data]
-    
-   return render(request, 'admin_panel/admin_category.html', {'data': data, 'selected_category': category})
 
+    return render(request, 'admin_panel/admin_category.html', {'data': data, 'selected_category': category})
 
 def get_username(user_id):
     url = f'http://localhost:8000/api/customusers/{user_id}/'
@@ -97,6 +97,18 @@ def view_orders(request):
     return render(request, 'admin_panel/orders.html', context)
 
 
+def change_order_status(order_id):
+
+    url = f'http://localhost:8000/api/orders/{order_id}/orderdetails/'
+    response = requests.get(url)
+    if response.status_code == 200:
+        response_data = response.json()
+        for data in response_data:
+            if not  data['isdelivered']:
+                return False
+        return True
+
+
 @staff_member_required
 def mark_order_completed(request):
 
@@ -116,6 +128,16 @@ def mark_order_completed(request):
         print(data)
         response = requests.put(url, data=data)
         print(response.status_code)
+
+        if change_order_status(order_id):
+            url = f'http://localhost:8000/api/orders/{order_id}/'
+            data = {
+                "delivery_status": "Delivered",
+                "user": user_id
+            }
+            response = requests.put(url, data=data)
+            print(response.status_code)
+
         if response.status_code == 200:
             print("Order updated successfully")
             print(response.json())

@@ -6,7 +6,7 @@ from django.contrib.sites import requests
 from django.shortcuts import render, redirect
 from django.conf import settings
 from .forms import CustomUserLoginForm, CustomUserRegistrationForm
-from .models import CustomUser
+from .models import CustomUser, Orders
 from .models import FoodDetails
 import razorpay
 
@@ -36,7 +36,7 @@ def contact(request):
 
 @login_required
 def index(request):
-    raw_data = FoodDetails.objects.all()
+    raw_data = FoodDetails.objects.all().order_by('id')
     data = []
     for item in raw_data:
         data.append({'id': item.id, 'name': item.name, 'stock_qty': item.stock_qty, 'price': item.price,
@@ -155,6 +155,11 @@ def get_cart_data(user_id):
 
     for detail in order_details_response:
             item = detail['item']
+            # print(detail)
+            # print(item)
+            if(detail['isdelivered']== True):
+                continue
+            print(detail['isdelivered'])
             cart_data.append({
                 'order_details_id': detail['id'],  # This is the order details ID, not the item ID
                 'food_id': item['id'],
@@ -328,8 +333,14 @@ def payment(request):
 
 # ... (other functions)
 
-# def get_waiting_list_id():
+def get_waiting_list_id():
+    orders= Orders.objects.filter(payment_status='Paid',delivery_status='Pending').order_by('id')
 
+    x=0;
+    for order in orders:
+        x+=1
+
+    return x;
 
 def sucess(request):
     try:
@@ -388,4 +399,4 @@ def sucess(request):
         print(f"Error occurred while updating order status: {e}")
         messages.error(request, "Error occurred while updating order status.")
 
-    return render(request, 'thank_you.html')
+    return render(request, 'thank_you.html',{'waiting_list_id':get_waiting_list_id()})

@@ -13,7 +13,22 @@
         <h2>Register</h2>
         <form action="{% url 'canteen:register' %}" method="post">
             {% csrf_token %}
-            {{ form.as_p }}
+            {{ form.non_field_errors }} {# Add this line to display non-field errors #}
+            {{ form.username.label_tag }}
+            {{ form.username }}
+            {% if form.username.errors %} {# Display username errors if there are any #}
+                <div class="error">{{ form.username.errors }}</div>
+            {% endif %}
+            {{ form.password1.label_tag }}
+            {{ form.password1 }}
+            {% if form.password1.errors %} {# Display password1 errors if there are any #}
+                <div class="error">{{ form.password1.errors }}</div>
+            {% endif %}
+            {{ form.password2.label_tag }}
+            {{ form.password2 }}
+            {% if form.password2.errors %} {# Display password2 errors if there are any #}
+                <div class="error">{{ form.password2.errors }}</div>
+            {% endif %}
             <button type="submit">Register</button>
         </form>
         <div class="switch-form">
