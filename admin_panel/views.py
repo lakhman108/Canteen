@@ -1,4 +1,5 @@
 from django.contrib import messages
+from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
@@ -9,6 +10,7 @@ from canteen.models import *
 from canteen.views import calculate_total_amount
 
 
+@staff_member_required
 def filter_and_render(request):
    if request.method == 'POST':
         category = request.POST.get('category')
@@ -61,6 +63,7 @@ def get_remaining_orderdetails(last_order_id):
     pass
 
 
+@staff_member_required
 def view_orders(request):
     url = 'http://localhost:8000/api/orders/remainingorders/'
     response = requests.get(url)
@@ -94,6 +97,7 @@ def view_orders(request):
     return render(request, 'admin_panel/orders.html', context)
 
 
+@staff_member_required
 def mark_order_completed(request):
 
         order_id = request.POST.get('order_id')

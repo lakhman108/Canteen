@@ -328,6 +328,9 @@ def payment(request):
 
 # ... (other functions)
 
+# def get_waiting_list_id():
+
+
 def sucess(request):
     try:
         razorpay_payment_id = request.GET.get('razorpay_payment_id', '')
@@ -385,4 +388,4 @@ def sucess(request):
         print(f"Error occurred while updating order status: {e}")
         messages.error(request, "Error occurred while updating order status.")
 
-    return HttpResponse("Payment Successfull")
+    return render(request, 'thank_you.html')
