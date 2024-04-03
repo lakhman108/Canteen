@@ -26,7 +26,7 @@ def filter_and_render(request):
     return render(request, 'admin_panel/admin_category.html', {'data': data, 'selected_category': category})
 
 def get_username(user_id):
-    url = f'www.canteenmanagement.live/api/customusers/{user_id}/'
+    url = f'https://www.canteenmanagement.live/api/customusers/{user_id}/'
     response = requests.get(url)
 
     if response.status_code == 200:
@@ -42,7 +42,7 @@ import requests
 
 def get_delivery_status(last_order_id):
 
-    url=f'www.canteenmanagement.live/api/orders/{last_order_id}/'
+    url=f'https://www.canteenmanagement.live/api/orders/{last_order_id}/'
     response = requests.get(url)
     if response.status_code == 200:
         response_data = response.json()
@@ -52,7 +52,7 @@ def get_delivery_status(last_order_id):
 
 
 def get_remaining_orderdetails(last_order_id):
-    url = f'www.canteenmanagement.live/api/orders/{last_order_id}/orderdetails/'
+    url = f'https://www.canteenmanagement.live/api/orders/{last_order_id}/orderdetails/'
     response = requests.get(url)
     if response.status_code == 200:
         data = response.json()
@@ -65,7 +65,7 @@ def get_remaining_orderdetails(last_order_id):
 
 @staff_member_required
 def view_orders(request):
-    url = 'www.canteenmanagement.live/api/orders/remainingorders/'
+    url = 'https://www.canteenmanagement.live/api/orders/remainingorders/'
     response = requests.get(url)
 
     pending_orders_data = []
@@ -99,7 +99,7 @@ def view_orders(request):
 
 def change_order_status(order_id):
 
-    url = f'www.canteenmanagement.live/api/orders/{order_id}/orderdetails/'
+    url = f'https://www.canteenmanagement.live/api/orders/{order_id}/orderdetails/'
     response = requests.get(url)
     if response.status_code == 200:
         response_data = response.json()
@@ -119,7 +119,7 @@ def mark_order_completed(request):
         print("order_id", order_id)
         print("user_id", user_id)
         print("order_detail_id", order_detail_id)
-        url = f'www.canteenmanagement.live/api/orderdetails/{order_detail_id}/'
+        url = f'https://www.canteenmanagement.live/api/orderdetails/{order_detail_id}/'
         data = {
             "order": order_id,
             "qty": qty,
@@ -130,7 +130,7 @@ def mark_order_completed(request):
         print(response.status_code)
 
         if change_order_status(order_id):
-            url = f'www.canteenmanagement.live/api/orders/{order_id}/'
+            url = f'https://www.canteenmanagement.live/api/orders/{order_id}/'
             data = {
                 "delivery_status": "Delivered",
                 "user": user_id
