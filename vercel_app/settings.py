@@ -29,7 +29,7 @@ DEBUG = True
 # ALLOWED_HOSTS = ['localhost', '.vercel.app']
 # settings.py
 
-ALLOWED_HOSTS = ['https://www.canteenmanagement.live','localhost','127.0.0.1','0.0.0.0','.github.dev','.vercel.app', '.now.sh']
+ALLOWED_HOSTS = ['www.canteenmanagement.live','localhost','127.0.0.1','0.0.0.0','.github.dev','.vercel.app', '.now.sh']
 # Or * to allow all
 #this is easy
 
