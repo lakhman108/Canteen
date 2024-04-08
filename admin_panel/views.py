@@ -9,7 +9,7 @@ from django.shortcuts import render, redirect
 
 from canteen.models import *
 from canteen.views import calculate_total_amount
-
+from django.conf import settings
 
 @staff_member_required
 def filter_and_render(request):
