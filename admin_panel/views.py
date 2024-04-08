@@ -15,7 +15,10 @@ from canteen.views import calculate_total_amount
 def filter_and_render(request):
     if request.method == 'POST':
         category = request.POST.get('category')
-        raw_data = FoodDetails.objects.filter(food__name=category).order_by('id')
+        if category != 'all':
+            raw_data = FoodDetails.objects.filter(food__name=category).order_by('id')
+        else:
+         raw_data = FoodDetails.objects.all().order_by('id')
     else:
         category = 'all'
         raw_data = FoodDetails.objects.all().order_by('id')
@@ -81,6 +84,7 @@ def view_orders(request):
 
 
             total_amount = calculate_total_amount(order_details)
+
             pending_orders_data.append({
                 'order_id': last_order_id,
                 'user_name': get_username(user_id),

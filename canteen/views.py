@@ -113,6 +113,7 @@ from django.http import HttpResponse
 
 
 def get_order_id(user_id):
+
     url = f'{settings.API_URL}/customusers/{user_id}/orders/'
 
     response = requests.get(url)
@@ -122,12 +123,14 @@ def get_order_id(user_id):
         if (data == []):
             return "No order found"
         order_id = data[0]['id']
+        print("order id found" + str(order_id))
         return order_id
     else:
         return "No order found"
 
 
 def get_orderdetails(order_id):
+    print("get order details called")
     url = f'{settings.API_URL}/orders/{order_id}/orderdetails/'
     response = requests.get(url)
     if response.status_code == 200:
@@ -149,7 +152,7 @@ def get_cart_data(user_id):
     cart_data = []
     order_id = get_order_id(user_id)
     if(order_id == "No order found"):
-
+        print("No order found")
         return cart_data
     order_details_response = get_orderdetails(order_id)
 
