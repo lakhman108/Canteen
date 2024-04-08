@@ -96,23 +96,23 @@ WSGI_APPLICATION = 'vercel_app.wsgi.app'
 
 
 # DATABASES = {}
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'postgres',
-        'USER': 'postgres.tugesqzaeyvirqlgkdoj',
-        'PASSWORD': 'mibpub-nozxyj-6Cegso',
-        'HOST': 'aws-0-ap-south-1.pooler.supabase.com',  # Usually 'your-username.supabase.co'
-        'PORT': '5432',                 # Default PostgreSQL port
-    }
-    
-}
 # DATABASES = {
 #     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'postgres',
+#         'USER': 'postgres.tugesqzaeyvirqlgkdoj',
+#         'PASSWORD': 'mibpub-nozxyj-6Cegso',
+#         'HOST': 'aws-0-ap-south-1.pooler.supabase.com',  # Usually 'your-username.supabase.co'
+#         'PORT': '5432',                 # Default PostgreSQL port
 #     }
+    
 # }
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
 
 # DATABASES = {
 #     'default': {
@@ -176,8 +176,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_REDIRECT_URL = 'canteen:index'
 LOGIN_URL = 'canteen:login'
 AUTH_USER_MODEL = 'canteen.CustomUser'
-# API_URL='http://18.232.87.185:8000/api'
-API_URL='https://potential-trout-j64rq5v9x6q2qgg4-8000.app.github.dev/api'
+API_URL='http://18.232.87.185:8000/api'
+# API_URL='https://potential-trout-j64rq5v9x6q2qgg4-8000.app.github.dev/api'
 
 
 
