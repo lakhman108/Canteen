@@ -18,7 +18,7 @@ var options = {
     "order_id": "{{ razorpay_order_id }}", //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
     "handler": function (response){
         console.log("response");
-      window.location.href = `http://18.232.87.185:8000/canteen/success/?razorpay_payment_id=${response.razorpay_payment_id}&razorpay_order_id=${response.razorpay_order_id}&razorpay_signature=${response.razorpay_signature}`;
+      window.location.href = `http://3.93.68.206:8000/canteen/success/?razorpay_payment_id=${response.razorpay_payment_id}&razorpay_order_id=${response.razorpay_order_id}&razorpay_signature=${response.razorpay_signature}`;
 
         // {#alert(response.razorpay_payment_id);}
         // {#alert(response.razorpay_order_id);}
