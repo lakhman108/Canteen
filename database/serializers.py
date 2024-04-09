@@ -29,7 +29,7 @@ class FoodDetailsRelatedField(serializers.RelatedField):
             'price': food_details.price,
             'photo_url': food_details.photo_url,
 
-            # 'url': f'https://3.93.68.206/api/fooddetails/{food_details.id}/'  # Include the item URL here
+            # 'url': f'http://localhost:8000/api/fooddetails/{food_details.id}/'  # Include the item URL here
         }
 
 

@@ -13,9 +13,12 @@ from django.conf import settings
 
 @staff_member_required
 def filter_and_render(request):
-    if request.method == 'POST':
+        if request.method == 'POST':
         category = request.POST.get('category')
-        raw_data = FoodDetails.objects.filter(food__name=category).order_by('id')
+        if category != 'all':
+            raw_data = FoodDetails.objects.filter(food__name=category).order_by('id')
+        else:
+         raw_data = FoodDetails.objects.all().order_by('id')
     else:
         category = 'all'
         raw_data = FoodDetails.objects.all().order_by('id')
@@ -24,6 +27,7 @@ def filter_and_render(request):
              'price': item.price, 'photo_url': item.photo_url} for item in raw_data]
 
     return render(request, 'admin_panel/admin_category.html', {'data': data, 'selected_category': category})
+
 
 def get_username(user_id):
     url = f'http://3.93.68.206:8000/api/customusers/{user_id}/'

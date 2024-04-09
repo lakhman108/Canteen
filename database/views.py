@@ -25,7 +25,7 @@ class CustomUserViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['get'])
     def orders(self, request, pk=None):
         user = CustomUser.objects.get(pk=pk)
-        orders = Orders.objects.filter(user=user)
+        orders = Orders.objects.filter(user=user).order_by('-id')
         permission_classes = [AllowAny]  # Allow unauthenticated access
         user_orders = OrdersSerializer(orders, many=True, context={'request': request})
         return Response(user_orders.data)
@@ -51,7 +51,7 @@ class OrdersViewSet(viewsets.ModelViewSet):
     def create(self, request):
 
         user_id = request.data['user']  # Get the authenticated user's ID
-        last_order = Orders.objects.filter(user_id=user_id).order_by('-id').first()
+        last_order = Orders.objects.filter(user_id=user_id).order_by('-id')
 
         if not last_order or last_order.delivery_status != 'Pending':
             order = Orders(user_id=user_id, delivery_status='Pending', payment_status='Pending')
@@ -154,7 +154,7 @@ class PaymentViewSet(viewsets.ModelViewSet):
     serializer_class = PaymentSerializer
     permission_classes = [AllowAny]  # Allow unauthenticated access
 
-    # #print("PaymentViewSet")
+    # print("PaymentViewSet")
     @action(detail=True, methods=['get'])
     def paymentdeatils(self, request, pk=None):
         order = Orders.objects.get(pk=pk)
