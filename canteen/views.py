@@ -13,14 +13,14 @@ import razorpay
 @login_required
 def filteritems(request):
     category = request.POST.get('category')
-    print(category)
+    #print(category)
     if category == 'all':
         raw_data = FoodDetails.objects.all().order_by('id')
     else:
         raw_data = FoodDetails.objects.filter(food__name=category).order_by('food_id')
-    print(category)
+    #print(category)
     for item in raw_data:
-        print(item)
+        #print(item)
 
     data = []
     for item in raw_data:
@@ -42,10 +42,10 @@ def index(request):
         data.append({'id': item.id, 'name': item.name, 'stock_qty': item.stock_qty, 'price': item.price,
                      'photo_url': item.photo_url})
 
-        # print(item.name)
-    # print(data)
-    # print(request.user)
-    # print(request.GET.get('next'))
+        # #print(item.name)
+    # #print(data)
+    # #print(request.user)
+    # #print(request.GET.get('next'))
 
     return render(request, 'index.html', {'data': data})
 
@@ -155,11 +155,11 @@ def get_cart_data(user_id):
 
     for detail in order_details_response:
             item = detail['item']
-            # print(detail)
-            # print(item)
+            # #print(detail)
+            # #print(item)
             if(detail['isdelivered']== True):
                 continue
-            print(detail['isdelivered'])
+            #print(detail['isdelivered'])
             cart_data.append({
                 'order_details_id': detail['id'],  # This is the order details ID, not the item ID
                 'food_id': item['id'],
@@ -250,7 +250,7 @@ def update_order_detail_quantity(request, order_detail_id, action):
 
 def payment(request):
 
-    print("function of payment called")
+    #print("function of payment called")
     user_id = request.session['user_id']
     order_id = get_order_id(user_id)
     order_details = get_orderdetails(order_id)
@@ -269,16 +269,16 @@ def payment(request):
     url = f'{settings.API_URL}/payment/'
     response = requests.post(url, data=payment_data)
     if response.status_code == 201:
-        print("Payment created successfully")
-    print(response.status_code)
-    print(response.json())
+        #print("Payment created successfully")
+    #print(response.status_code)
+    #print(response.json())
 
 
     return render(request, 'payment.html', {'amount': total_amount})
 
 
 def payment(request):
-    print("function of payment called")
+    #print("function of payment called")
     try:
         user_id = request.session['user_id']
     except KeyError:
@@ -305,7 +305,7 @@ def payment(request):
         payment = client.order.create(data=data)
     except Exception as e:
         # Handle exceptions related to Razorpay payment
-        print(f"Error occurred while creating Razorpay payment: {e}")
+        #print(f"Error occurred while creating Razorpay payment: {e}")
         messages.error(request, "Error occurred while creating Razorpay payment.")
         return redirect('canteen:index')
 
@@ -320,14 +320,14 @@ def payment(request):
         response = requests.post(url, data=payment_data)
         response.raise_for_status()  # Raise an exception for non-2xx status codes
         if response.status_code == 201:
-            print("Payment created successfully")
+            #print("Payment created successfully")
     except requests.exceptions.RequestException as e:
         # Handle exceptions related to the HTTP request
-        print(f"Error occurred while creating payment: {e}")
+        #print(f"Error occurred while creating payment: {e}")
         messages.error(request, "Error occurred while creating payment.")
 
-    print(response.status_code)
-    print(response.json())
+    #print(response.status_code)
+    #print(response.json())
 
     return render(request, 'payment.html', {'amount': total_amount})
 
@@ -349,7 +349,7 @@ def sucess(request):
         razorpay_signature = request.GET.get('razorpay_signature', '')
     except Exception as e:
         # Handle exceptions related to GET parameters
-        print(f"Error occurred while retrieving GET parameters: {e}")
+        #print(f"Error occurred while retrieving GET parameters: {e}")
         messages.error(request, "Error occurred while retrieving GET parameters.")
         return redirect('canteen:index')
 
@@ -379,10 +379,10 @@ def sucess(request):
             url = f'{settings.API_URL}/payment/{payment_id}/'
             response = requests.put(url, data=payment_data)
             response.raise_for_status()  # Raise an exception for non-2xx status codes
-            print(data)
+            #print(data)
     except requests.exceptions.RequestException as e:
         # Handle exceptions related to the HTTP request
-        print(f"Error occurred while updating payment details: {e}")
+        #print(f"Error occurred while updating payment details: {e}")
         messages.error(request, "Error occurred while updating payment details.")
 
     try:
@@ -393,10 +393,10 @@ def sucess(request):
         }
         response = requests.put(url, data=data)
         response.raise_for_status()  # Raise an exception for non-2xx status codes
-        print(response.json())
+        #print(response.json())
     except requests.exceptions.RequestException as e:
         # Handle exceptions related to the HTTP request
-        print(f"Error occurred while updating order status: {e}")
+        #print(f"Error occurred while updating order status: {e}")
         messages.error(request, "Error occurred while updating order status.")
 
     return render(request, 'thank_you.html',{'waiting_list_id':get_waiting_list_id()})

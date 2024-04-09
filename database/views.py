@@ -154,7 +154,7 @@ class PaymentViewSet(viewsets.ModelViewSet):
     serializer_class = PaymentSerializer
     permission_classes = [AllowAny]  # Allow unauthenticated access
 
-    # print("PaymentViewSet")
+    # #print("PaymentViewSet")
     @action(detail=True, methods=['get'])
     def paymentdeatils(self, request, pk=None):
         order = Orders.objects.get(pk=pk)

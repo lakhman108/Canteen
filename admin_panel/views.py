@@ -57,7 +57,7 @@ def get_remaining_orderdetails(last_order_id):
     if response.status_code == 200:
         data = response.json()
         filtered_data = [item for item in data if not item['isdelivered']]
-        print(filtered_data)
+        # #print(filtered_data)
 
         return filtered_data
     pass
@@ -116,18 +116,18 @@ def mark_order_completed(request):
         user_id = request.POST.get('user_id')
         order_detail_id = request.POST.get('order_detail_id')
         qty = request.POST.get('qty')
-        print("order_id", order_id)
-        print("user_id", user_id)
-        print("order_detail_id", order_detail_id)
+        # #print("order_id", order_id)
+        # #print("user_id", user_id)
+        # #print("order_detail_id", order_detail_id)
         url = f'http://3.93.68.206:8000/api/orderdetails/{order_detail_id}/'
         data = {
             "order": order_id,
             "qty": qty,
             "isdelivered": True
         }
-        print(data)
+        # #print(data)
         response = requests.put(url, data=data)
-        print(response.status_code)
+        # #print(response.status_code)
 
         if change_order_status(order_id):
             url = f'http://3.93.68.206:8000/api/orders/{order_id}/'
@@ -136,11 +136,11 @@ def mark_order_completed(request):
                 "user": user_id
             }
             response = requests.put(url, data=data)
-            print(response.status_code)
+            # #print(response.status_code)
 
         if response.status_code == 200:
-            print("Order updated successfully")
-            print(response.json())
+            # #print("Order updated successfully")
+            # #print(response.json())
             # OrderDetails object successfully deleted
             return redirect('admin_panel:view_orders')
         else:
