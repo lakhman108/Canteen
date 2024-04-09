@@ -13,7 +13,7 @@ from django.conf import settings
 
 @staff_member_required
 def filter_and_render(request):
-        if request.method == 'POST':
+    if request.method == 'POST':
         category = request.POST.get('category')
         if category != 'all':
             raw_data = FoodDetails.objects.filter(food__name=category).order_by('id')
