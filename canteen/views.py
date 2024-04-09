@@ -19,7 +19,7 @@ def filteritems(request):
     else:
         raw_data = FoodDetails.objects.filter(food__name=category).order_by('food_id')
     #print(category)
-    for item in raw_data:
+    # for item in raw_data:
         #print(item)
 
     data = []
@@ -268,7 +268,7 @@ def payment(request):
 
     url = f'{settings.API_URL}/payment/'
     response = requests.post(url, data=payment_data)
-    if response.status_code == 201:
+    # if response.status_code == 201:
         #print("Payment created successfully")
     #print(response.status_code)
     #print(response.json())
@@ -319,7 +319,7 @@ def payment(request):
         url = f'{settings.API_URL}/payment/'
         response = requests.post(url, data=payment_data)
         response.raise_for_status()  # Raise an exception for non-2xx status codes
-        if response.status_code == 201:
+        # if response.status_code == 201:
             #print("Payment created successfully")
     except requests.exceptions.RequestException as e:
         # Handle exceptions related to the HTTP request
