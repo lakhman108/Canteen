@@ -29,7 +29,7 @@ DEBUG = True
 # ALLOWED_HOSTS = ['localhost', '.vercel.app']
 # settings.py
 
-ALLOWED_HOSTS = ['www.canteenmanagement.live','localhost','127.0.0.1','0.0.0.0','.github.dev','.vercel.app', '.now.sh']
+ALLOWED_HOSTS = ['3.93.68.206','3.93.68.206','localhost','127.0.0.1','0.0.0.0','.github.dev','.vercel.app', '.now.sh']
 # Or * to allow all
 #this is easy
 
@@ -92,9 +92,9 @@ WSGI_APPLICATION = 'vercel_app.wsgi.app'
 # Note: Django modules for using databases are not support in serverless
 # environments like Vercel. You can use a database over HTTP, hosted elsewhere.
 
-from dotenv import load_dotenv
 
-load_dotenv()
+
+
 # DATABASES = {}
 # DATABASES = {
 #     'default': {
@@ -105,7 +105,7 @@ load_dotenv()
 #         'HOST': 'aws-0-ap-south-1.pooler.supabase.com',  # Usually 'your-username.supabase.co'
 #         'PORT': '5432',                 # Default PostgreSQL port
 #     }
-#
+    
 # }
 DATABASES = {
     'default': {
@@ -113,7 +113,6 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-
 
 # DATABASES = {
 #     'default': {
@@ -177,7 +176,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_REDIRECT_URL = 'canteen:index'
 LOGIN_URL = 'canteen:login'
 AUTH_USER_MODEL = 'canteen.CustomUser'
-API_URL='http://localhost:8000/api'
+API_URL='http://3.93.68.206:8000/api'
+# API_URL='https://potential-trout-j64rq5v9x6q2qgg4-8000.app.github.dev/api'
+
+
 
 
 RAZORPAY_KEY_ID = 'rzp_test_JTePD1c5RLT3nj'
