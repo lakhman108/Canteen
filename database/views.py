@@ -89,7 +89,9 @@ class FoodDetailsViewSet(viewsets.ModelViewSet):
         fooddetails=FoodDetails.objects.create(name=name,price=price,photo_url=photo_url,stock_qty=stock_qty,food=food)
 
         fooddetails.save()
-        return Response({'message': 'Item added successfully.'}, status=status.HTTP_201_CREATED)
+        fooddetails_serializer = FoodDetailsSerializer(fooddetails)
+        return Response(fooddetails_serializer.data, status=status.HTTP_201_CREATED)
+
 
 
 
