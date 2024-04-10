@@ -105,7 +105,7 @@ WSGI_APPLICATION = 'vercel_app.wsgi.app'
 #         'HOST': 'aws-0-ap-south-1.pooler.supabase.com',  # Usually 'your-username.supabase.co'
 #         'PORT': '5432',                 # Default PostgreSQL port
 #     }
-    
+#
 # }
 DATABASES = {
     'default': {
@@ -177,6 +177,7 @@ LOGIN_REDIRECT_URL = 'canteen:index'
 LOGIN_URL = 'canteen:login'
 AUTH_USER_MODEL = 'canteen.CustomUser'
 API_URL='http://localhost:8000/api'
+HOST='http://localhost:8000'
 # API_URL='https://potential-trout-j64rq5v9x6q2qgg4-8000.app.github.dev/api'
 
 

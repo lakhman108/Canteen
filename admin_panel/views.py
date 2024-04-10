@@ -67,40 +67,69 @@ def get_remaining_orderdetails(last_order_id):
     pass
 
 
+from django.http import JsonResponse
+
 @staff_member_required
 def view_orders(request):
-    url = f'{settings.API_URL}/orders/remainingorders/'
-    response = requests.get(url)
+    if request.method == 'GET':
+        url = f'{settings.API_URL}/orders/remainingorders/'
+        response = requests.get(url)
 
-    pending_orders_data = []
-    if response.status_code == 200:
-        pending_orders = response.json()
-        for order in pending_orders:
-            user_id = order['user']
+        pending_orders_data = []
+        if response.status_code == 200:
+            pending_orders = response.json()
+            for order in pending_orders:
+                user_id = order['user']
 
-            last_order_id = order['id']
+                last_order_id = order['id']
 
-            order_details = get_remaining_orderdetails(last_order_id)
+                order_details = get_remaining_orderdetails(last_order_id)
 
+                total_amount = calculate_total_amount(order_details)
 
+                pending_orders_data.append({
+                    'order_id': last_order_id,
+                    'user_name': get_username(user_id),
+                    'user_id': user_id,
+                    'total_amount': total_amount,
+                    'order_details': order_details
+                })
+        else:
+            # Handle the error case
+            messages.error(request, "Error occurred while fetching pending orders.")
+            return redirect('admin_panel:view_orders')
 
-            total_amount = calculate_total_amount(order_details)
+        context = {'orders': pending_orders_data}
+        return render(request, 'admin_panel/ManageOrders.html', context)
+    elif request.method == 'POST':
+        # Handle the AJAX request after marking an order as completed
+        url = f'{settings.API_URL}/orders/remainingorders/'
+        response = requests.get(url)
 
-            pending_orders_data.append({
-                'order_id': last_order_id,
-                'user_name': get_username(user_id),
-                'user_id': user_id,
-                'total_amount': total_amount,
-                'order_details': order_details
-            })
-    else:
-        # Handle the error case
-        messages.error(request, "Error occurred while fetching pending orders.")
-        return redirect('admin_panel:view_orders')
+        pending_orders_data = []
+        if response.status_code == 200:
+            pending_orders = response.json()
+            for order in pending_orders:
+                user_id = order['user']
 
-    context = {'orders': pending_orders_data}
-    return render(request, 'admin_panel/ManageOrders.html', context)
+                last_order_id = order['id']
 
+                order_details = get_remaining_orderdetails(last_order_id)
+
+                total_amount = calculate_total_amount(order_details)
+
+                pending_orders_data.append({
+                    'order_id': last_order_id,
+                    'user_name': get_username(user_id),
+                    'user_id': user_id,
+                    'total_amount': total_amount,
+                    'order_details': order_details
+                })
+        else:
+            # Handle the error case
+            return JsonResponse({'success': False, 'error': 'Error occurred while fetching pending orders.'})
+
+        return JsonResponse({'success': True, 'orders': pending_orders_data})
 
 def change_order_status(order_id):
 
@@ -114,25 +143,25 @@ def change_order_status(order_id):
         return True
 
 
+
+
+from django.http import JsonResponse
+
 @staff_member_required
 def mark_order_completed(request):
-
+    if request.method == 'POST':
         order_id = request.POST.get('order_id')
         user_id = request.POST.get('user_id')
         order_detail_id = request.POST.get('order_detail_id')
         qty = request.POST.get('qty')
-        # #print("order_id", order_id)
-        # #print("user_id", user_id)
-        # #print("order_detail_id", order_detail_id)
+
         url = f'{settings.API_URL}/orderdetails/{order_detail_id}/'
         data = {
             "order": order_id,
             "qty": qty,
             "isdelivered": True
         }
-        # #print(data)
         response = requests.put(url, data=data)
-        # #print(response.status_code)
 
         if change_order_status(order_id):
             url = f'{settings.API_URL}/orders/{order_id}/'
@@ -141,15 +170,48 @@ def mark_order_completed(request):
                 "user": user_id
             }
             response = requests.put(url, data=data)
-            # #print(response.status_code)
 
         if response.status_code == 200:
-            # #print("Order updated successfully")
-            # #print(response.json())
-            # OrderDetails object successfully deleted
-            return redirect('admin_panel:view_orders')
-        else:
-            # Handle the error case
-            return redirect('admin_panel:view_orders')
+            # Fetch the updated orders data and return it as JSON response
+            url = f'{settings.API_URL}/orders/remainingorders/'
+            response = requests.get(url)
 
-        return redirect('admin_panel:view_orders:view_orders')
+            pending_orders_data = []
+            if response.status_code == 200:
+                pending_orders = response.json()
+                for order in pending_orders:
+                    user_id = order['user']
+                    last_order_id = order['id']
+                    order_details = get_remaining_orderdetails(last_order_id)
+
+                    total_amount = calculate_total_amount(order_details)
+
+                    user_orders_data = []
+                    for order_detail in order_details:
+                        order_detail_data = {
+                            'id': order_detail['id'],
+                            'order': last_order_id,
+                            'item': {
+                                'id': order_detail['item']['id'],
+                                'name': order_detail['item']['name'],
+                                'price': order_detail['item']['price'],
+                                'photo_url': order_detail['item']['photo_url']
+                            },
+                            'qty': order_detail['qty'],
+                            'isdelivered': order_detail['isdelivered']
+                        }
+                        user_orders_data.append(order_detail_data)
+
+                    pending_orders_data.append({
+                        'order_id': last_order_id,
+                        'user_name': get_username(user_id),
+                        'user_id': user_id,
+                        'total_amount': total_amount,
+                        'orders': user_orders_data
+                    })
+
+            return JsonResponse({'success': True, 'orders': pending_orders_data})
+        else:
+            return JsonResponse({'success': False, 'error': 'Error updating order status'})
+    else:
+        return JsonResponse({'success': False, 'error': 'Invalid request method'})

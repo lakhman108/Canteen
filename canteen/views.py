@@ -248,33 +248,33 @@ def update_order_detail_quantity(request, order_detail_id, action):
     return redirect('canteen:cart')
 
 
-def payment(request):
-
-    #print("function of payment called")
-    user_id = request.session['user_id']
-    order_id = get_order_id(user_id)
-    order_details = get_orderdetails(order_id)
-    total_amount = calculate_total_amount(order_details)
-
-    client = razorpay.Client(auth=("rzp_test_JTePD1c5RLT3nj", "7p5e6T5NGyUl4fgOJAYYIzze"))
-    total_amount *= 100
-    data = {"amount": total_amount, "currency": "INR", "receipt": "order_rcptid_11"}
-    payment = client.order.create(data=data)
-    payment_data = {
-        'user': user_id,
-        'order': order_id,
-        'razorpay_order_id': payment['id'],
-    }
-
-    url = f'{settings.API_URL}/payment/'
-    response = requests.post(url, data=payment_data)
-    # if response.status_code == 201:
-        #print("Payment created successfully")
-    #print(response.status_code)
-    #print(response.json())
-
-
-    return render(request, 'payment.html', {'amount': total_amount})
+# def payment(request):
+#     print("payment called\n")
+#     #print("function of payment called")
+#     user_id = request.session['user_id']
+#     order_id = get_order_id(user_id)
+#     order_details = get_orderdetails(order_id)
+#     total_amount = calculate_total_amount(order_details)
+#
+#     client = razorpay.Client(auth=("rzp_test_JTePD1c5RLT3nj", "7p5e6T5NGyUl4fgOJAYYIzze"))
+#     total_amount *= 100
+#     data = {"amount": total_amount, "currency": "INR", "receipt": "order_rcptid_11"}
+#     payment = client.order.create(data=data)
+#     payment_data = {
+#         'user': user_id,
+#         'order': order_id,
+#         'razorpay_order_id': payment['id'],
+#     }
+#
+#     url = f'{settings.API_URL}/payment/'
+#     response = requests.post(url, data=payment_data)
+#     # if response.status_code == 201:
+#         #print("Payment created successfully")
+#     #print(response.status_code)
+#     #print(response.json())
+#
+#
+#     return render(request, 'payment.html', {'amount': total_amount})
 
 
 def payment(request):
