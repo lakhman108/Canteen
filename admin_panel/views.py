@@ -26,7 +26,7 @@ def filter_and_render(request):
     data = [{'id': item.id, 'name': item.name, 'stock_qty': item.stock_qty,
              'price': item.price, 'photo_url': item.photo_url} for item in raw_data]
 
-    return render(request, 'admin_panel/admin_category.html', {'data': data, 'selected_category': category})
+    return render(request, 'admin_panel/allItems.html', {'data': data, 'selected_category': category})
 
 
 def get_username(user_id):
@@ -71,6 +71,7 @@ from django.http import JsonResponse
 
 @staff_member_required
 def view_orders(request):
+    print("view_orders called")
     if request.method == 'GET':
         url = f'{settings.API_URL}/orders/remainingorders/'
         response = requests.get(url)
@@ -101,6 +102,7 @@ def view_orders(request):
 
         context = {'orders': pending_orders_data}
         return render(request, 'admin_panel/ManageOrders.html', context)
+
     elif request.method == 'POST':
         # Handle the AJAX request after marking an order as completed
         url = f'{settings.API_URL}/orders/remainingorders/'
@@ -126,6 +128,7 @@ def view_orders(request):
                     'order_details': order_details
                 })
         else:
+
             # Handle the error case
             return JsonResponse({'success': False, 'error': 'Error occurred while fetching pending orders.'})
 

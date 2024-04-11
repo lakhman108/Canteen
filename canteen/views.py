@@ -399,4 +399,4 @@ def sucess(request):
         #print(f"Error occurred while updating order status: {e}")
         messages.error(request, "Error occurred while updating order status.")
 
-    return render(request, 'thank_you.html',{'waiting_list_id':get_waiting_list_id()})
+    return render(request, 'OrderStatus.html', {'waiting_list_id':get_waiting_list_id()})

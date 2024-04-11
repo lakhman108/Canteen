@@ -63,6 +63,7 @@ class OrdersViewSet(viewsets.ModelViewSet):
     def remainingorders(self, request):
         pending_orders = Orders.objects.filter(delivery_status='Pending')
         serializer = self.get_serializer(pending_orders, many=True)
+
         return Response(serializer.data)
 
 

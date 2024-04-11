@@ -37,11 +37,11 @@ Cart
                     </td>
                     <td class="py-3 px-6 text-left">
                         <div class="flex items-center">
-                            <a href="{% url 'canteen:update_order_detail_quantity' item.order_details_id 'decrease' %}" class="text-gray-600 hover:text-gray-900 mr-2">
+                            <a id="update-quantity" href="{% url 'canteen:update_order_detail_quantity' item.order_details_id 'decrease' %}" class="text-gray-600 hover:text-gray-900 mr-2">
                                 <i class="fas fa-minus"></i>
                             </a>
                             <span id="quantity-{{ item.order_details_id }}">{{ item.quantity }}</span>
-                            <a href="{% url 'canteen:update_order_detail_quantity' item.order_details_id 'add' %}" class="text-gray-600 hover:text-gray-900 ml-2">
+                            <a id="update-quantity" href="{% url 'canteen:update_order_detail_quantity' item.order_details_id 'add' %}" class="text-gray-600 hover:text-gray-900 ml-2">
                                 <i class="fas fa-plus"></i>
                             </a>
                         </div>
@@ -65,5 +65,16 @@ Cart
     <p>Your cart is empty.</p>
     {% endif %}
 </div>
+    
+    <script>
+    
+    const qunatity_update=document.querySelectorAll('#update-quantity');
+    qunatity_update.forEach(a =>{a.addEventListener('click',event=>{
+        event.preventDefault();
+        console.log(event.currentTarget)
+        console.log(event.target.className)
+        
+    });});
+    </script>
 
 {% endblock %}

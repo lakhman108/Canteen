@@ -11,7 +11,7 @@
 </head>
 <body class="bg-gray-100">
 <!-- Start of Navbar -->
-{% include 'admin_panel/Admin_navigation.html' %}
+{% include 'admin_panel/admin_nav.html' %}
 
 {% block content %}
     <div class="container mx-auto px-6 py-8">
@@ -206,8 +206,8 @@
             form.addEventListener('submit', (event) => {
                 const category = event.submitter.value;
                 if(category != 'Order Completed'){
-                  
-                   
+
+
                 }
                 else {
                     event.preventDefault();
@@ -225,7 +225,7 @@
                     markOrderCompleted(orderDetailId, orderId, userId, qty);
                 }
             });
-            
+
         });
 
     </script>
