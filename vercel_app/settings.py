@@ -29,7 +29,7 @@ DEBUG = True
 # ALLOWED_HOSTS = ['localhost', '.vercel.app']
 # settings.py
 
-ALLOWED_HOSTS = ['3.93.68.206','3.93.68.206','localhost','127.0.0.1','0.0.0.0','.github.dev','.vercel.app', '.now.sh']
+ALLOWED_HOSTS = ['34.200.43.125','3.93.68.206','localhost','127.0.0.1','0.0.0.0','.github.dev','.vercel.app', '.now.sh']
 # Or * to allow all
 #this is easy
 
@@ -176,8 +176,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_REDIRECT_URL = 'canteen:index'
 LOGIN_URL = 'canteen:login'
 AUTH_USER_MODEL = 'canteen.CustomUser'
-API_URL='http://localhost:8000/api'
-HOST='http://localhost:8000'
+API_URL='http://34.200.43.125:8000/api'
+HOST='http://34.200.43.125:8000'
 # API_URL='https://potential-trout-j64rq5v9x6q2qgg4-8000.app.github.dev/api'
 
 
