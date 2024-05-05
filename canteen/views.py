@@ -174,8 +174,9 @@ def get_cart_data(user_id):
 
 
 def cart(request):
+
     cart_data = []
-    user_id = request.session['user_id']
+    user_id = request.user.id
 
     if request.method != 'POST':
 
@@ -193,11 +194,13 @@ def cart(request):
             'qty': int(1),
         }
         response = requests.post(url, data=data)
-
-        return redirect('canteen:index')
+        print(response)
+        print(response.json())
+        return HttpResponse(response.json())
 
 
 def about(request):
+
     return render(request, "about.html");
 
 
@@ -280,7 +283,7 @@ def update_order_detail_quantity(request, order_detail_id, action):
 def payment(request):
     #print("function of payment called")
     try:
-        user_id = request.session['user_id']
+        user_id = request.user.id
     except KeyError:
         # Handle the case when user_id is not in the session
         messages.error(request, "User ID not found in the session.")
@@ -354,7 +357,7 @@ def sucess(request):
         return redirect('canteen:index')
 
     try:
-        user_id = request.session['user_id']
+        user_id = request.user.id
     except KeyError:
         # Handle the case when user_id is not in the session
         messages.error(request, "User ID not found in the session.")

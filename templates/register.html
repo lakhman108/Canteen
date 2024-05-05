@@ -6,27 +6,44 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register</title>
     <link rel="stylesheet" href="{% static 'style.css' %}">
-    
+    <style>
+        .password-requirements {
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+        }
+        .password-requirements .message {
+            color: #dc3545;
+            margin-bottom: 0.25rem;
+        }
+        .password-requirements .valid {
+            color: #28a745;
+        }
+        li{
+            transition: color 1s linear;
+            color: red;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
         <h2>Register</h2>
         <form action="{% url 'canteen:register' %}" method="post">
             {% csrf_token %}
-            {{ form.non_field_errors }} {# Add this line to display non-field errors #}
+            {{ form.non_field_errors }}
             {{ form.username.label_tag }}
             {{ form.username }}
-            {% if form.username.errors %} {# Display username errors if there are any #}
+            {% if form.username.errors %}
                 <div class="error">{{ form.username.errors }}</div>
             {% endif %}
             {{ form.password1.label_tag }}
             {{ form.password1 }}
-            {% if form.password1.errors %} {# Display password1 errors if there are any #}
+            {% if form.password1.errors %}
                 <div class="error">{{ form.password1.errors }}</div>
             {% endif %}
+            <div class="password-requirements" id="password-messages"></div>
             {{ form.password2.label_tag }}
             {{ form.password2 }}
-            {% if form.password2.errors %} {# Display password2 errors if there are any #}
+            {% if form.password2.errors %}
                 <div class="error">{{ form.password2.errors }}</div>
             {% endif %}
             <button type="submit">Register</button>
@@ -35,5 +52,54 @@
             Already have an account? <a href="{% url 'canteen:login' %}">Login</a>
         </div>
     </div>
+
+    <script>
+        // Get the password input field
+        const password1Input = document.getElementById('id_password1');
+
+        // Add event listener for input events
+        password1Input.addEventListener('input', validatePassword);
+
+        // Function to validate the password
+        function validatePassword() {
+            const password = this.value;
+            const messages = [];
+            const validMessages = [];
+
+            // Check password length
+            if (password.length < 8) {
+                messages.push('Password must be at least 8 characters long');
+            } else {
+                validMessages.push('Password has at least 8 characters');
+            }
+
+            // Check for capital letter
+            if (!/[A-Z]/.test(password)) {
+                messages.push('Password must contain at least one capital letter');
+            } else {
+                validMessages.push('Password contains a capital letter');
+            }
+
+            // Check for lowercase letter
+            if (!/[a-z]/.test(password)) {
+                messages.push('Password must contain at least one lowercase letter');
+            } else {
+                validMessages.push('Password contains a lowercase letter');
+            }
+
+            // Check for number
+            if (!/[0-9]/.test(password)) {
+                messages.push('Password must contain at least one number');
+            } else {
+                validMessages.push('Password contains a number');
+            }
+
+            const messagesDiv = document.getElementById('password-messages');
+            messagesDiv.innerHTML = `
+                ${messages.map(message => `<div class="message">${message}</div>`).join('')}
+                ${validMessages.map(message => `<div class="message valid">${message}</div>`).join('')}
+            `;
+        }
+    </script>
 </body>
 </html>

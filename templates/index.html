@@ -5,47 +5,42 @@
 {% endblock %}
 
 {% block content %}
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="relative flex flex-col items-center justify-between h-16 sm:flex-row">
-
-            <div class="hidden sm:block sm:ml-6">
-                <div class="flex justify-center space-x-4 sm:justify-between">
-
-                    <form action="{% url 'canteen:filter' %}" method="post">
+    <div class="max-w-7xl mx-auto px-4">
+        <div class="relative flex flex-col items-center justify-between sm:flex-row">
+            <div class="sm:ml-6 w-full">
+                <div class="flex flex-wrap justify-center sm:justify-between space-x-2">
+                    <form  action="{% url 'canteen:filter' %}" method="post" class="flex flex-wrap justify-center w-full">
                         {% csrf_token %}
                         <button type="submit" name="category" value="all"
-                                class="bg-white hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow">
+                                class="bg-white hover:bg-gray-300 text-gray-800 font-semibold py-2 px-3 border border-gray-400 rounded shadow m-1 w-full sm:w-auto">
                             ALL
                         </button>
                         <button type="submit" name="category" value="Gujarati_items"
-                                class="bg-white hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow">
+                                class="bg-white hover:bg-gray-300 text-gray-800 font-semibold py-2 px-3 border border-gray-400 rounded shadow m-1 w-full sm:w-auto">
                             Gujarati Dishes
                         </button>
                         <button type="submit" name="category" value="Punjabi_items"
-                                class="bg-white hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow">
+                                class="bg-white hover:bg-gray-300 text-gray-800 font-semibold py-2 px-3 border border-gray-400 rounded shadow m-1 w-full sm:w-auto">
                             Punjabi Dishes
                         </button>
                         <button type="submit" name="category" value="Chinese_items"
-                                class="bg-white hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow">
+                                class="bg-white hover:bg-gray-300 text-gray-800 font-semibold py-2 px-3 border border-gray-400 rounded shadow m-1 w-full sm:w-auto">
                             Chinese Dishes
                         </button>
                         <button type="submit" name="category" value="South_indian"
-                                class="bg-white hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow">
+                                class="bg-white hover:bg-gray-300 text-gray-800 font-semibold py-2 px-3 border border-gray-400 rounded shadow m-1 w-full sm:w-auto">
                             South Indian Dishes
                         </button>
                         <button type="submit" name="category" value="Snacks"
-                                class="bg-white hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow">
+                                class="bg-white hover:bg-gray-300 text-gray-800 font-semibold py-2 px-3 border border-gray-400 rounded shadow m-1 w-full sm:w-auto">
                             Snacks
                         </button>
-
                     </form>
-
                 </div>
             </div>
         </div>
 
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-8">
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-8">
             {% for item in data %}
                 <div class="bg-white rounded-lg shadow-md overflow-hidden">
                     <img class="w-full h-48 object-cover" src="{{ item.photo_url }}" alt="{{ item.name }}">
@@ -68,8 +63,8 @@
     </div>
 
     <script>
-
         function add_to_cart(item_id) {
+            const csrfToken = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
 
             const formData = new FormData();
             formData.append('item_id', item_id);
@@ -77,16 +72,14 @@
             fetch(url, {
                 method: 'POST',
                 headers: {
-                    'X-CSRFToken': '{{ csrf_token }}'
+                    'X-CSRFToken': csrfToken
                 },
                 body: formData
             })
                 .then(response => response.json())
                 .then(data => {
-
                     if (data.success) {
                         alert('Item added to cart successfully.');
-
                     } else {
                         console.error('Error occurred while marking order as completed.');
                     }
@@ -96,15 +89,17 @@
                 });
         }
 
-
         const addToCartButtons = document.querySelectorAll('button[type="submit"]');
         addToCartButtons.forEach(button => {
             button.addEventListener('click', (event) => {
-
-
+                console.log(event.target.name)
+                if (event.target.name ==="category")
+                {}
+                else {
                 event.preventDefault();
                 const itemId = button.closest('form').querySelector('input[name="item_id"]').value;
                 add_to_cart(itemId);
+                    }
             });
         });
     </script>

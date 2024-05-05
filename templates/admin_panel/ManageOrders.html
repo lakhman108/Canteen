@@ -43,41 +43,6 @@
                                 </tr>
                                 </thead>
                                 <tbody class="bg-white divide-y divide-gray-200">
-                                {% for order in orders %}
-
-                                    {% for order_detail in order.order_details %}
-
-
-
-
-                                        <tr>
-                                            {% if forloop.first %}
-                                                <td rowspan="{{ order.order_details|length }}">{{ order.user_name }}</td>
-                                            {% endif %}
-                                            <td>{{ order_detail.item.name }}</td>
-                                            <td>{{ order_detail.qty }}</td>
-                                            <td><img src="{{ order_detail.item.photo_url }}" alt="Item Image"
-                                                     class="w-24"></td>
-                                            <td>
-                                                <form method="post"
-                                                      action="{% url 'admin_panel:mark_order_completed' %}">
-                                                    {% csrf_token %}
-                                                    <input type="hidden" name="order_id" value="{{ order.order_id }}">
-                                                    <input type="hidden" name="user_id" value="{{ order.user_id }}">
-                                                    <input type="hidden" name="order_detail_id"
-                                                           value="{{ order_detail.id }}">
-                                                    <input type="hidden" name="qty" value="{{ order_detail.qty }}">
-                                                    <input type="submit" name="done"
-                                                           class="px-4 py-2 bg-blue-500 text-white rounded"
-                                                           value="Order Completed">
-                                                </form>
-                                            </td>
-                                        </tr>
-
-                                        <div></div>
-                                    {% endfor %}
-
-                                {% endfor %}
                                 </tbody>
                             </table>
                         </div>
@@ -88,10 +53,94 @@
     </div>
 
     <script>
+      const orders = {{ orders|safe }};
 
+        console.log(orders)
+
+        function renderOrders(orders) {
+            const ordersTable = document.querySelector('tbody');
+            ordersTable.innerHTML = ''; // Clear existing rows
+
+            orders.forEach(order => {
+                let userRow = document.createElement('tr');
+                userRow.setAttribute('data-order-id', order.order_id);
+                const userNameCell = document.createElement('td');
+                userNameCell.setAttribute('rowspan', order.orders.length);
+                userNameCell.textContent = order.user_name;
+                userRow.appendChild(userNameCell);
+
+                order.orders.forEach((orderDetail, index) => {
+                    if (index !== 0) {
+                        userRow = document.createElement('tr'); // Create a new row for each additional order detail
+                    }
+
+                    const itemNameCell = document.createElement('td');
+                    itemNameCell.textContent = orderDetail.item.name;
+                    userRow.appendChild(itemNameCell);
+
+                    const quantityCell = document.createElement('td');
+                    quantityCell.textContent = orderDetail.qty;
+                    userRow.appendChild(quantityCell);
+
+                    const imageCell = document.createElement('td');
+                    const itemImage = document.createElement('img');
+                    itemImage.src = orderDetail.item.photo_url;
+                    itemImage.alt = 'Item Image';
+                    itemImage.classList.add('w-24');
+                    imageCell.appendChild(itemImage);
+                    userRow.appendChild(imageCell);
+
+                    const actionCell = document.createElement('td');
+                    const form = document.createElement('form');
+                    form.method = 'post';
+                    form.addEventListener('submit', handleFormSubmit);
+
+                    const csrfInput = document.createElement('input');
+                    csrfInput.type = 'hidden';
+                    csrfInput.name = 'csrfmiddlewaretoken';
+                    csrfInput.value = '{{ csrf_token }}';
+                    form.appendChild(csrfInput);
+
+                    const orderIdInput = document.createElement('input');
+                    orderIdInput.type = 'hidden';
+                    orderIdInput.name = 'order_id';
+                    orderIdInput.value = order.order_id;
+                    form.appendChild(orderIdInput);
+
+                    const userIdInput = document.createElement('input');
+                    userIdInput.type = 'hidden';
+                    userIdInput.name = 'user_id';
+                    userIdInput.value = order.user_id;
+                    form.appendChild(userIdInput);
+
+                    const orderDetailIdInput = document.createElement('input');
+                    orderDetailIdInput.type = 'hidden';
+                    orderDetailIdInput.name = 'order_detail_id';
+                    orderDetailIdInput.value = orderDetail.id;
+                    form.appendChild(orderDetailIdInput);
+
+                    const qtyInput = document.createElement('input');
+                    qtyInput.type = 'hidden';
+                    qtyInput.name = 'qty';
+                    qtyInput.value = orderDetail.qty;
+                    form.appendChild(qtyInput);
+
+                    const submitButton = document.createElement('input');
+                    submitButton.type = 'submit';
+                    submitButton.name = 'done';
+                    submitButton.value = 'Order Completed';
+                    submitButton.classList.add('px-4', 'py-2', 'bg-blue-500', 'text-white', 'rounded');
+                    form.appendChild(submitButton);
+                    actionCell.appendChild(form);
+                    userRow.appendChild(actionCell);
+
+                    ordersTable.appendChild(userRow);
+                });
+            });
+        }
 
         function markOrderCompleted(orderDetailId, orderId, userId, qty) {
-            const csrfToken = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
+            const csrfToken = '{{ csrf_token }}';
             const formData = new FormData();
             formData.append('order_id', orderId);
             formData.append('user_id', userId);
@@ -105,129 +154,43 @@
                 },
                 body: formData
             })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // Update the orders table with the new data
-                        const ordersTable = document.querySelector('tbody');
-
-                        ordersTable.innerHTML = '';
-                        data.orders.forEach(order => {
-                            const userRow = document.createElement('tr');
-                            userRow.setAttribute('data-order-id', order.order_id);
-                            const userNameCell = document.createElement('td');
-                            userNameCell.setAttribute('rowspan', order.orders.length);
-                            userNameCell.textContent = order.user_name;
-                            userRow.appendChild(userNameCell);
-
-                            order.orders.forEach((orderDetail, index) => {
-                                if (index === 0) {
-                                    userRow.appendChild(userNameCell);
-                                }
-
-                                const itemNameCell = document.createElement('td');
-                                itemNameCell.textContent = orderDetail.item.name;
-                                userRow.appendChild(itemNameCell);
-
-                                const quantityCell = document.createElement('td');
-                                quantityCell.textContent = orderDetail.qty;
-                                userRow.appendChild(quantityCell);
-
-                                const imageCell = document.createElement('td');
-                                const itemImage = document.createElement('img');
-                                itemImage.src = orderDetail.item.photo_url;
-                                itemImage.alt = 'Item Image';
-                                itemImage.classList.add('w-24');
-                                imageCell.appendChild(itemImage);
-                                userRow.appendChild(imageCell);
-
-                                const statusCell = document.createElement('td');
-                                const statusForm = document.createElement('form');
-                                statusForm.method = 'post';
-                                statusForm.action = '#'; // Changed the action to '#'
-
-                                const csrfToken = document.createElement('input');
-                                csrfToken.type = 'hidden';
-                                csrfToken.name = 'csrfmiddlewaretoken';
-                                csrfToken.value = '{{ csrf_token }}';
-                                statusForm.appendChild(csrfToken);
-
-                                const orderIdInput = document.createElement('input');
-                                orderIdInput.type = 'hidden';
-                                orderIdInput.name = 'order_id';
-                                orderIdInput.value = order.order_id;
-                                statusForm.appendChild(orderIdInput);
-
-                                const userIdInput = document.createElement('input');
-                                userIdInput.type = 'hidden';
-                                userIdInput.name = 'user_id';
-                                userIdInput.value = order.user_id;
-                                statusForm.appendChild(userIdInput);
-
-                                const orderDetailIdInput = document.createElement('input');
-                                orderDetailIdInput.type = 'hidden';
-                                orderDetailIdInput.name = 'order_detail_id';
-                                orderDetailIdInput.value = orderDetail.id;
-                                statusForm.appendChild(orderDetailIdInput);
-
-                                const qtyInput = document.createElement('input');
-                                qtyInput.type = 'hidden';
-                                qtyInput.name = 'qty';
-                                qtyInput.value = orderDetail.qty;
-                                statusForm.appendChild(qtyInput);
-
-                                const submitButton = document.createElement('input');
-                                submitButton.type = 'submit';
-                                submitButton.name = 'done';
-                                submitButton.value = 'Order Completed';
-                                submitButton.classList.add('px-4', 'py-2', 'bg-blue-500', 'text-white', 'rounded');
-                                submitButton.addEventListener('click', (event) => {
-                                    event.preventDefault();
-                                    markOrderCompleted(orderDetail.id, order.order_id, order.user_id, orderDetail.qty);
-                                });
-                                statusForm.appendChild(submitButton);
-                                statusCell.appendChild(statusForm);
-                                userRow.appendChild(statusCell);
-                            });
-                            ordersTable.appendChild(userRow);
-                        });
-                    } else {
-                        console.error('Error occurred while marking order as completed.');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error occurred while marking order as completed:', error);
-                });
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    renderOrders(data.orders);
+                } else {
+                    console.error('Error occurred while marking order as completed.');
+                }
+            })
+            .catch(error => {
+                console.error('Error occurred while marking order as completed:', error);
+            });
         }
 
-        // Add event listeners to all existing form elements
-        const forms = document.querySelectorAll('form');
-        forms.forEach(form => {
-            form.addEventListener('submit', (event) => {
-                const category = event.submitter.value;
-                if(category != 'Order Completed'){
+        function handleFormSubmit(event) {
+            event.preventDefault();
 
+            const formData = new FormData(event.target);
+            const orderDetailId = formData.get('order_detail_id');
+            const orderId = formData.get('order_id');
+            const userId = formData.get('user_id');
+            const qty = formData.get('qty');
 
-                }
-                else {
-                    event.preventDefault();
+            markOrderCompleted(orderDetailId, orderId, userId, qty);
+        }
 
-
-                    console.log('Clicked category:', category);
-
-
-                    const formData = new FormData(event.target);
-
-                    const orderDetailId = formData.get('order_detail_id');
-                    const orderId = formData.get('order_id');
-                    const userId = formData.get('user_id');
-                    const qty = formData.get('qty');
-                    markOrderCompleted(orderDetailId, orderId, userId, qty);
-                }
-            });
-
+        // Add event listeners to all existing and future form elements
+        const ordersTable = document.querySelector('tbody');
+        ordersTable.addEventListener('submit', (event) => {
+            if (event.target.tagName === 'FORM') {
+                handleFormSubmit(event);
+            }
         });
 
+        // Render initial orders
+        renderOrders(orders);
     </script>
 
 {% endblock %}
+</body>
+</html>

@@ -67,7 +67,6 @@ def get_remaining_orderdetails(last_order_id):
     pass
 
 
-from django.http import JsonResponse
 
 @staff_member_required
 def view_orders(request):
