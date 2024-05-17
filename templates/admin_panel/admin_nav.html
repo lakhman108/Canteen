@@ -1,33 +1,55 @@
- 
-
 <nav class="bg-white shadow">
-        <div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
-            <div class="relative flex items-center justify-between h-16">
-                <!-- Brand Logo -->
-                <div class="flex-1 flex items-center justify-center sm:items-stretch sm:justify-start">
-                    <div class="flex-shrink-0 flex items-center">
-                        <a href="http://localhost:8000/admin/" class="font-semibold text-xl tracking-tight">Admin</a>
-                    </div>
-                </div>
-                <!-- Navigation Links -->
-                <div class="hidden sm:block sm:ml-6">
-                    <div class="flex space-x-4">
-                        <form action="{% url 'admin_panel:filter' %}" method="post">
+    <div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16">
+            <!-- Brand Logo -->
+            <div class="flex-shrink-0 flex items-center">
+                <a href="http://localhost:8000/admin/" class="font-semibold text-xl tracking-tight">Admin</a>
+            </div>
+            <!-- Navigation Links (Mobile Menu) -->
+            <div class="block sm:hidden">
+                <button id="mobile-menu-toggle" class="text-gray-700 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium focus:outline-none focus:ring">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+            </div>
+            <!-- Navigation Links (Desktop Menu) -->
+            <div class="hidden sm:block sm:ml-6">
+                <div class="flex space-x-4">
+                    <form action="{% url 'admin_panel:filter' %}" method="post">
                         {% csrf_token %}
                         <a href="{% url 'admin_panel:view_orders' %}" class="text-gray-700 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Manage orders</a>
-                           <button type="submit" name="category" value="all" class="{% if selected_category == 'all' %}bg-gray-700 text-white{% else %}text-gray-700{% endif %} hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">All Items</button>
-<button type="submit" name="category" value="Gujarati_items" class="{% if selected_category == 'Gujarati_items' %}bg-gray-700 text-white{% else %}text-gray-700{% endif %} hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Gujarati Dishes</button>
-<button type="submit" name="category" value="Punjabi_items" class="{% if selected_category == 'Punjabi_items' %}bg-gray-700 text-white{% else %}text-gray-700{% endif %} hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Punjabi Dishes</button>
-<button type="submit" name="category" value="Chinese_items" class="{% if selected_category == 'Chinese_items' %}bg-gray-700 text-white{% else %}text-gray-700{% endif %} hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Chinese Dishes</button>
-<button type="submit" name="category" value="South_indian" class="{% if selected_category == 'South_indian' %}bg-gray-700 text-white{% else %}text-gray-700{% endif %} hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">South Indian Dishes</button>
-<button type="submit" name="category" value="Snacks" class="{% if selected_category == 'Snacks' %}bg-gray-700 text-white{% else %}text-gray-700{% endif %} hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Snacks</button>
-                        </form>
-                    </div>
+                        <button type="submit" name="category" value="all" class="{% if selected_category == 'all' %}bg-gray-700 text-white{% else %}text-gray-700{% endif %} hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">All Items</button>
+                        <button type="submit" name="category" value="Gujarati_items" class="{% if selected_category == 'Gujarati_items' %}bg-gray-700 text-white{% else %}text-gray-700{% endif %} hover:bg-gray-600 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Gujarati Dishes</button>
+                        <button type="submit" name="category" value="Punjabi_items" class="{% if selected_category == 'Punjabi_items' %}bg-gray-700 text-white{% else %}text-gray-700{% endif %} hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Punjabi Dishes</button>
+                        <button type="submit" name="category" value="Chinese_items" class="{% if selected_category == 'Chinese_items' %}bg-gray-700 text-white{% else %}text-gray-700{% endif %} hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Chinese Dishes</button>
+                        <button type="submit" name="category" value="South_indian" class="{% if selected_category == 'South_indian' %}bg-gray-700 text-white{% else %}text-gray-700{% endif %} hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">South Indian Dishes</button>
+                        <button type="submit" name="category" value="Snacks" class="{% if selected_category == 'Snacks' %}bg-gray-700 text-white{% else %}text-gray-700{% endif %} hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Snacks</button>
+                    </form>
                 </div>
             </div>
         </div>
-    </nav>
- 
- 
-  
-                     
+    </div>
+    <!-- Mobile Menu -->
+    <div class="sm:hidden" id="mobile-menu">
+        <div class="px-2 pt-2 pb-3 space-y-1">
+            <a href="{% url 'admin_panel:view_orders' %}" class="text-gray-700 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Manage Orders</a>
+            <form action="{% url 'admin_panel:filter' %}" method="post">
+                {% csrf_token %}
+                <button type="submit" name="category" value="all" class="{% if selected_category == 'all' %}bg-gray-700 text-white{% else %}text-gray-700{% endif %} hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium">All Items</button>
+                <button type="submit" name="category" value="Gujarati_items" class="{% if selected_category == 'Gujarati_items' %}bg-gray-700 text-white{% else %}text-gray-700{% endif %} hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Gujarati Dishes</button>
+                <button type="submit" name="category" value="Punjabi_items" class="{% if selected_category == 'Punjabi_items' %}bg-gray-700 text-white{% else %}text-gray-700{% endif %} hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Punjabi Dishes</button>
+                <button type="submit" name="category" value="Chinese_items" class="{% if selected_category == 'Chinese_items' %}bg-gray-700 text-white{% else %}text-gray-700{% endif %} hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Chinese Dishes</button>
+                <button type="submit" name="category" value="South_indian" class="{% if selected_category == 'South_indian' %}bg-gray-700 text-white{% else %}text-gray-700{% endif %} hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium">South Indian Dishes</button>
+                <button type="submit" name="category" value="Snacks" class="{% if selected_category == 'Snacks' %}bg-gray-700 text-white{% else %}text-gray-700{% endif %} hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Snacks</button>
+            </form>
+        </div>
+    </div>
+</nav>
+
+<script>
+    document.getElementById('mobile-menu-toggle').addEventListener('click', function () {
+        var mobileMenu = document.getElementById('mobile-menu');
+        mobileMenu.classList.toggle('hidden');
+    });
+</script>

@@ -9,78 +9,66 @@
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.2/dist/tailwind.min.css" rel="stylesheet">
     {% block extra_css %}{% endblock %}
 </head>
-<body class="bg-gray-100">
-<!-- Start of Navbar -->
-{% include 'admin_panel/admin_nav.html' %}
-
-{% block content %}
-    <div class="container mx-auto px-6 py-8">
-        <h2 class="text-gray-700 text-3xl font-medium">Orders Details</h2>
-
-        <div class="mt-8">
-            <div class="flex flex-col">
-                <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
-                    <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
-                        <div class="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
-                            <table class="min-w-full divide-y divide-gray-200">
-                                <thead class="bg-gray-50">
-                                <!-- ... -->
-                                </thead>
-                                <tbody class="bg-white divide-y divide-gray-200">
-                                {% for order in orders %}
-                                    {% for order_detail in order.order_details %}
-                                        <tr data-order-id="{{ order.order_id }}" data-order-detail-id="{{ order_detail.id }}">
-                                            {% if forloop.first %}
-                                                <td rowspan="{{ order.order_details|length }}">{{ order.user_name }}</td>
-                                            {% endif %}
-                                            <td>{{ order_detail.item.name }}</td>
-                                            <td>{{ order_detail.qty }}</td>
-                                            <td><img src="{{ order_detail.item.photo_url }}" alt="Item Image" class="w-24"></td>
-                                            <td>
-                                                <button class="px-4 py-2 bg-blue-500 text-white rounded order-complete-btn"
-                                                        data-order-id="{{ order.order_id }}"
-                                                        data-user-id="{{ order.user_id }}"
-                                                        data-order-detail-id="{{ order_detail.id }}"
-                                                        data-qty="{{ order_detail.qty }}">
-                                                    Order Completed
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    {% endfor %}
-                                {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
+<body class="bg-gray-100 min-h-screen flex flex-col">
+    <!-- Start of Navbar -->
+    {% include 'admin_panel/admin_nav.html' %}
+    
+    <!-- Main content -->
+    <main class="flex-grow container mx-auto px-6 py-8">
+        <h2 class="text-gray-700 text-3xl font-semibold mb-6">Orders Details</h2>
+        <div class="bg-white shadow-md rounded-lg overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Item</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Image</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {% for order in orders %}
+                            {% for order_detail in order.order_details %}
+                                <tr data-order-id="{{ order.order_id }}" data-order-detail-id="{{ order_detail.id }}">
+                                    {% if forloop.first %}
+                                        <td rowspan="{{ order.order_details|length }}" class="px-6 py-4 whitespace-nowrap">{{ order.user_name }}</td>
+                                    {% endif %}
+                                    <td class="px-6 py-4 whitespace-nowrap">{{ order_detail.item.name }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">{{ order_detail.qty }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <img src="{{ order_detail.item.photo_url }}" alt="Item Image" class="w-24 h-24 object-cover">
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <button class="px-4 py-2 bg-blue-500 text-white rounded-lg order-complete-btn"
+                                                data-order-id="{{ order.order_id }}"
+                                                data-user-id="{{ order.user_id }}"
+                                                data-order-detail-id="{{ order_detail.id }}"
+                                                data-qty="{{ order_detail.qty }}">
+                                            Order Completed
+                                        </button>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
         </div>
-    </div>
+    </main>
 
- <script>
-        function getCookie(name) {
-            let cookieValue = null;
-            if (document.cookie && document.cookie !== '') {
-                const cookies = document.cookie.split(';');
-                for (let i = 0; i < cookies.length; i++) {
-                    const cookie = cookies[i].trim();
-                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
-                    }
-                }
-            }
-            return cookieValue;
-        }
+    <script>
+       
 
         function markOrderCompleted(orderDetailId, orderId, userId, qty) {
-            const csrftoken = getCookie('csrftoken');
+            const csrftoken =" {{ csrf_token }}";
 
             const formData = new FormData();
             formData.append('order_id', orderId);
             formData.append('user_id', userId);
             formData.append('order_detail_id', orderDetailId);
-            formData.append('qty', qty);   
+            formData.append('qty', qty);
 
             fetch('{% url "admin_panel:mark_order_completed" %}', {
                 method: 'POST',
@@ -132,4 +120,5 @@
             });
         });
     </script>
-{% endblock %}
+</body>
+</html>

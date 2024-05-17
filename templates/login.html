@@ -1,4 +1,3 @@
-
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
@@ -8,8 +7,8 @@
     <title>Login</title>
     <style>
         body {
-            background-image: url(" {% static 'loginsinup.png' %}");
-         background-repeat: no-repeat;
+            background-image: url("{% static 'loginsinup.png' %}");
+            background-repeat: no-repeat;
             background-size: cover;
             font-family: Arial, sans-serif;
             background-color: #f4f4f4;
@@ -22,13 +21,19 @@
         }
 
         .form-container {
-           
-            background-color: #fff;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
             padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             width: 300px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
             text-align: center;
+        }
+
+        .form-container h2 {
+            color: #fff;
         }
 
         .form-container form {
@@ -41,6 +46,7 @@
             padding: 8px;
             border: 1px solid #ccc;
             border-radius: 4px;
+            background: rgba(255, 255, 255, 0.7);
         }
 
         .form-container button {
@@ -64,9 +70,28 @@
             color: #007BFF;
             text-decoration: none;
         }
+
+        @media (max-width: 768px) {
+            .form-container {
+                width: 80%;
+                padding: 15px;
+            }
+
+            .form-container input,
+            .form-container button {
+                padding: 10px;
+                margin: 8px 0;
+            }
+        }
+
+        @media (min-width: 769px) {
+            .form-container {
+                width: 400px;
+                padding: 30px;
+            }
+        }
     </style>
 </head>
-
 <body>
     <div class="form-container">
         <h2>Login</h2>
@@ -80,6 +105,4 @@
         </div>
     </div>
 </body>
-
-
 </html>
