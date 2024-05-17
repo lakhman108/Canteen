@@ -4,12 +4,59 @@
     Home
 {% endblock %}
 
+
 {% block content %}
+    <style>
+    /* Optional Custom CSS for Further Enhancements */
+.rating {
+    display: inline-block;
+    position: relative;
+    height: 1em;
+    line-height: 1em;
+    font-size: 1.25rem;
+}
+.rating::before {
+    content: '★★★★★';
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    color: #e0e0e0;
+}
+.rating[data-rating='5']::before {
+    width: 100%;
+    color: #ffc107;
+}
+.rating[data-rating='4']::before {
+    width: 80%;
+    color: #ffc107;
+}
+.rating[data-rating='3']::before {
+    width: 60%;
+    color: #ffc107;
+}
+.rating[data-rating='2']::before {
+    width: 40%;
+    color: #ffc107;
+}
+.rating[data-rating='1']::before {
+    width: 20%;
+    color: #ffc107;
+}
+
+    </style>
     <div class="max-w-7xl mx-auto px-4">
+        <script src="https://unpkg.com/@dotlottie/player-component@latest/dist/dotlottie-player.mjs" type="module"></script>
+
+        <!-- Animation container -->
+        <div id="animationContainer" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; z-index: 1000;">
+            <dotlottie-player src="https://lottie.host/91f67079-5590-4799-a925-2b3226981946/oBtXQp7ZHM.json" background="transparent" speed="1" style="width: 300px; height: 300px;" loop autoplay></dotlottie-player>
+        </div>
+
         <div class="relative flex flex-col items-center justify-between sm:flex-row">
             <div class="sm:ml-6 w-full">
                 <div class="flex flex-wrap justify-center sm:justify-between space-x-2">
-                    <form  action="{% url 'canteen:filter' %}" method="post" class="flex flex-wrap justify-center w-full">
+                    <form action="{% url 'canteen:filter' %}" method="post" class="flex flex-wrap justify-center w-full">
                         {% csrf_token %}
                         <button type="submit" name="category" value="all"
                                 class="bg-white hover:bg-gray-300 text-gray-800 font-semibold py-2 px-3 border border-gray-400 rounded shadow m-1 w-full sm:w-auto">
@@ -40,67 +87,117 @@
             </div>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-8">
-            {% for item in data %}
-                <div class="bg-white rounded-lg shadow-md overflow-hidden">
-                    <img class="w-full h-48 object-cover" src="{{ item.photo_url }}" alt="{{ item.name }}">
-                    <div class="p-4">
-                        <h3 class="text-lg font-semibold text-gray-800">{{ item.name }}</h3>
-                        <p class="text-gray-600 mb-2">{{ item.stock_qty }} in stock</p>
-                        <p class="text-gray-900 font-bold mb-4">&#8377;{{ item.price }}</p>
-                        <form action="{% url 'canteen:cart' %}" method="post">
-                            {% csrf_token %}
-                            <input type="hidden" name="item_id" value="{{ item.id }}">
-                            <button type="submit"
-                                    class="bg-indigo-500 text-white py-2 px-4 rounded-md hover:bg-indigo-600 w-full">
-                                Add to Cart
-                            </button>
-                        </form>
-                    </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-8">
+    {% for item in data %}
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden transform hover:scale-105 transition-transform duration-300">
+            <div class="relative">
+                <img class="w-full h-56 object-cover" src="{{ item.photo_url }}" alt="{{ item.name }}">
+                <div class="absolute bottom-0 left-0 bg-black bg-opacity-50 text-white p-2 w-full text-center">
+                    <h3 class="text-lg font-semibold">{{ item.name }}</h3>
                 </div>
-            {% endfor %}
+            </div>
+            <div class="p-4">
+                <p class="text-gray-600 mb-2">{{ item.stock_qty }} in stock</p>
+                <p class="rating text-yellow-500 mb-2" data-rating="{{ item.rating }}"></p>
+                <p class="text-gray-900 font-bold mb-4">&#8377;{{ item.price }}</p>
+                <form action="{% url 'canteen:cart' %}" method="post" class="w-full">
+                    {% csrf_token %}
+                    <input type="hidden" name="item_id" value="{{ item.id }}">
+                    <button type="submit"
+                            class="bg-indigo-500 text-white py-2 px-4 rounded-md hover:bg-indigo-600 w-full">
+                        Add to Cart
+                    </button>
+                </form>
+            </div>
         </div>
-    </div>
+    {% endfor %}
+</div>
 
+
+    </div>
+<script>
+    function getStarRating(rating) {
+        const maxRating = 5; // Assuming the maximum rating is 5
+        let starRating = '';
+
+        for (let i = 1; i <= maxRating; i++) {
+            if (i <= rating) {
+                starRating += '★'; // Filled star for each point of the rating
+            } else {
+                starRating += '☆'; // Empty star for the remaining points
+            }
+        }
+        return starRating;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('.rating').forEach(el => {
+            const rating = parseFloat(el.dataset.rating);
+            el.textContent = getStarRating(rating);
+        });
+    });
+</script>
     <script>
         function add_to_cart(item_id) {
             const csrfToken = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
 
             const formData = new FormData();
             formData.append('item_id', item_id);
-            const url = '{% url "canteen:cart" %}';
-            fetch(url, {
+
+            fetch('{% url "canteen:cart" %}', {
                 method: 'POST',
                 headers: {
                     'X-CSRFToken': csrfToken
                 },
                 body: formData
             })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        alert('Item added to cart successfully.');
+            .then(response => {
+                if (response.ok) {
+                    const contentType = response.headers.get('content-type');
+                    if (contentType && contentType.includes('application/json')) {
+                        return response.json(); // Parse JSON response
                     } else {
-                        console.error('Error occurred while marking order as completed.');
+                        // Handle non-JSON response
+                        return response.text(); // Fallback to text response
                     }
-                })
-                .catch(error => {
-                    console.error('Error occurred while adding item in  order ', error);
-                });
+                } else {
+                    throw new Error('Server responded with status: ' + response.status);
+                }
+            })
+            .then(data => {
+                const animationContainer = document.getElementById('animationContainer');
+                animationContainer.style.display = 'block';
+
+                setTimeout(() => {
+                    animationContainer.style.display = 'none';
+                }, 2300);
+
+                if (typeof data === 'object') {
+                    console.log('Item added to cart:', data);
+                    
+                } else {
+                    console.log('Server response:', data);
+                  
+                }
+            })
+            .catch(error => {
+                console.error('Error occurred while adding item to the cart:', error);
+                alert('An error occurred while adding the item to the cart.');
+            });
         }
 
         const addToCartButtons = document.querySelectorAll('button[type="submit"]');
         addToCartButtons.forEach(button => {
             button.addEventListener('click', (event) => {
-                console.log(event.target.name)
-                if (event.target.name ==="category")
-                {}
-                else {
-                event.preventDefault();
-                const itemId = button.closest('form').querySelector('input[name="item_id"]').value;
-                add_to_cart(itemId);
-                    }
+                if (event.target.name === "category") {
+                    // Do nothing for category buttons
+                } else {
+                    event.preventDefault();
+                    const itemId = button.closest('form').querySelector('input[name="item_id"]').value;
+                    add_to_cart(itemId);
+                }
             });
         });
     </script>
 {% endblock %}
+

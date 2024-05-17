@@ -7,12 +7,16 @@
 
 {% block footer %}
     {{ block.super }}
-    <button class="btn btn-primary">
-        <a href="{% url 'admin_panel:view_orders' %}" class="text-white">View Orders</a>
-    </button>
-    <button class="btn btn-primary">
-        <a href="{% url 'admin_panel:filter' %}" class="text-white">Change items</a>
-    </button>
+    {% if user.is_authenticated and user.is_staff %}
+        {% if request.resolver_match.url_name == 'index' %}
+            <button class="btn btn-primary">
+                <a href="{% url 'admin_panel:view_orders' %}" class="text-white">View Orders</a>
+            </button>
+            <button class="btn btn-primary">
+                <a href="{% url 'admin_panel:filter' %}" class="text-white">Change items</a>
+            </button>
+        {% endif %}
+    {% endif %}
 {% endblock %}
 
 {% block extrahead %}

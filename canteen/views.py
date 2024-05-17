@@ -10,21 +10,24 @@ from .models import CustomUser, Orders
 from .models import FoodDetails
 import razorpay
 
+
 @login_required
 def filteritems(request):
     category = request.POST.get('category')
-    
+
     if category == 'all':
         raw_data = FoodDetails.objects.all().order_by('id')
     else:
         raw_data = FoodDetails.objects.filter(food__name=category).order_by('food_id')
-    
+
     data = []
     for item in raw_data:
         data.append({'id': item.id, 'name': item.name, 'stock_qty': item.stock_qty, 'price': item.price,
-                     'photo_url': item.photo_url})
+                     'photo_url': item.photo_url,
+                     'rating':item.rating})
 
     return render(request, 'index.html', {'data': data})
+
 
 @login_required
 def contact(request):
@@ -37,7 +40,10 @@ def index(request):
     data = []
     for item in raw_data:
         data.append({'id': item.id, 'name': item.name, 'stock_qty': item.stock_qty, 'price': item.price,
-                     'photo_url': item.photo_url})
+                     'photo_url': item.photo_url,
+                     'rating': item.rating})
+
+
 
         # #print(item.name)
     # #print(data)
@@ -45,6 +51,9 @@ def index(request):
     # #print(request.GET.get('next'))
 
     return render(request, 'index.html', {'data': data})
+
+
+from django.shortcuts import render
 
 
 def custom_user_login(request):
@@ -110,7 +119,6 @@ from django.http import HttpResponse
 
 
 def get_order_id(user_id):
-
     url = f'{settings.API_URL}/customusers/{user_id}/orders/'
 
     response = requests.get(url)
@@ -148,33 +156,32 @@ def calculate_total_amount(order_details):
 def get_cart_data(user_id):
     cart_data = []
     order_id = get_order_id(user_id)
-    if(order_id == "No order found"):
+    if (order_id == "No order found"):
         print("No order found")
         return cart_data
     order_details_response = get_orderdetails(order_id)
 
     for detail in order_details_response:
-            item = detail['item']
-            # #print(detail)
-            # #print(item)
-            if(detail['isdelivered']== True):
-                continue
-            #print(detail['isdelivered'])
-            cart_data.append({
-                'order_details_id': detail['id'],  # This is the order details ID, not the item ID
-                'food_id': item['id'],
-                'food_name': item['name'],
-                'price': item['price'],
-                'image_url': item['photo_url'],
-                'quantity': detail['qty'],
-                'total_price': item['price'] * detail['qty'],
+        item = detail['item']
+        # #print(detail)
+        # #print(item)
+        if (detail['isdelivered'] == True):
+            continue
+        #print(detail['isdelivered'])
+        cart_data.append({
+            'order_details_id': detail['id'],  # This is the order details ID, not the item ID
+            'food_id': item['id'],
+            'food_name': item['name'],
+            'price': item['price'],
+            'image_url': item['photo_url'],
+            'quantity': detail['qty'],
+            'total_price': item['price'] * detail['qty'],
         })
 
     return cart_data
 
 
 def cart(request):
-
     cart_data = []
     user_id = request.user.id
 
@@ -194,13 +201,14 @@ def cart(request):
             'qty': int(1),
         }
         response = requests.post(url, data=data)
-        print(response)
+        print("\n\n\n\n\n")
+        print(data)
         print(response.json())
+        print("\n\n\n\n\n")
         return HttpResponse(response.json())
 
 
 def about(request):
-
     return render(request, "about.html");
 
 
@@ -323,7 +331,7 @@ def payment(request):
         response = requests.post(url, data=payment_data)
         response.raise_for_status()  # Raise an exception for non-2xx status codes
         # if response.status_code == 201:
-            #print("Payment created successfully")
+        #print("Payment created successfully")
     except requests.exceptions.RequestException as e:
         # Handle exceptions related to the HTTP request
         #print(f"Error occurred while creating payment: {e}")
@@ -334,16 +342,18 @@ def payment(request):
 
     return render(request, 'payment.html', {'amount': total_amount})
 
+
 # ... (other functions)
 
 def get_waiting_list_id():
-    orders= Orders.objects.filter(payment_status='Paid',delivery_status='Pending').order_by('id')
+    orders = Orders.objects.filter(payment_status='Paid', delivery_status='Pending').order_by('id')
 
-    x=0;
+    x = 0;
     for order in orders:
-        x+=1
+        x += 1
 
     return x;
+
 
 def sucess(request):
     try:
@@ -402,4 +412,4 @@ def sucess(request):
         #print(f"Error occurred while updating order status: {e}")
         messages.error(request, "Error occurred while updating order status.")
 
-    return render(request, 'OrderStatus.html', {'waiting_list_id':get_waiting_list_id()})
+    return render(request, 'OrderStatus.html', {'waiting_list_id': get_waiting_list_id()})

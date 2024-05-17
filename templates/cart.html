@@ -1,78 +1,72 @@
 {% extends 'base.html' %}
 
-
-
 {% block title %}
 Cart
 {% endblock %}
 
 {% block content %}
-<div class="container mx-auto my-8">
-    <h1 class="text-2xl font-bold mb-4">Your Cart</h1>
+<div class="container mx-auto my-8 px-4 sm:px-6 lg:px-8">
+    <h1 class="text-4xl font-bold mb-6 text-gray-800">Your Cart</h1>
     {% if cart_data %}
-    <div class="bg-white rounded-lg shadow-md p-6">
-        <table class="w-full">
-            <thead>
-                <tr class="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
-                    <th class="py-3 px-6 text-left">Item</th>
-                    <th class="py-3 px-6 text-left">Price</th>
-                    <th class="py-3 px-6 text-left">Quantity</th>
-                    <th class="py-3 px-6 text-left">Total</th>
-                    <th class="py-3 px-6 text-left">Action</th>
-                </tr>
-            </thead>
-            <tbody class="text-gray-600 text-sm font-light">
-                {% for item in cart_data %}
-                <tr class="border-b border-gray-200 hover:bg-gray-100">
-                    <td class="py-3 px-6 text-left whitespace-nowrap">
-                        <div class="flex items-center">
-                            <div class="mr-2">
-                                <img class="w-12 h-12 rounded-full" src="{{ item.image_url }}" alt="{{ item.food_name }}">
+    <div class="bg-white rounded-xl shadow-lg p-6 sm:p-8">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-100">
+                    <tr>
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Item</th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Price</th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Quantity</th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Total</th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Action</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for item in cart_data %}
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0 h-16 w-16">
+                                    <img class="h-16 w-16 rounded-md object-cover" src="{{ item.image_url }}" alt="{{ item.food_name }}">
+                                </div>
+                                <div class="ml-4">
+                                    <div class="text-lg font-medium text-gray-900">
+                                        <a href="{{ item.item_url }}">{{ item.food_name }}</a>
+                                    </div>
+                                </div>
                             </div>
-                            <a href="{{ item.item_url }}" class="font-medium">{{ item.food_name }}</a>
-                        </div>
-                    </td>
-                    <td class="py-3 px-6 text-left">
-                        <span>&#8377;{{ item.price }}</span>
-                    </td>
-                    <td class="py-3 px-6 text-left">
-                        <div class="flex items-center">
-                            <a id="update-quantity" href="{% url 'canteen:update_order_detail_quantity' item.order_details_id 'decrease' %}" class="text-gray-600 hover:text-gray-900 mr-2">
-                                <i class="fas fa-minus"></i>
-                            </a>
-                            <span id="quantity-{{ item.order_details_id }}">{{ item.quantity }}</span>
-                            <a id="update-quantity" href="{% url 'canteen:update_order_detail_quantity' item.order_details_id 'add' %}" class="text-gray-600 hover:text-gray-900 ml-2">
-                                <i class="fas fa-plus"></i>
-                            </a>
-                        </div>
-                    </td>
-                    <td class="py-3 px-6 text-left">
-                        <span id="total-{{ item.order_details_id }}">&#8377;{{ item.total_price }}</span>
-                    </td>
-                    <td class="py-3 px-6 text-left">
-                        <a href="{% url 'canteen:remove_order_detail' item.order_details_id %}" class="text-red-600 hover:text-red-900">Remove</a>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-lg text-gray-900">&#8377;{{ item.price }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <button onclick="location.href='{% url 'canteen:update_order_detail_quantity' item.order_details_id 'decrease' %}'" class="text-gray-500 hover:text-gray-700 mr-3 focus:outline-none">
+                                    <i class="fas fa-minus"></i>
+                                </button>
+                                <span id="quantity-{{ item.order_details_id }}" class="text-lg text-gray-900">{{ item.quantity }}</span>
+                                <button onclick="location.href='{% url 'canteen:update_order_detail_quantity' item.order_details_id 'add' %}'" class="text-gray-500 hover:text-gray-700 ml-3 focus:outline-none">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-lg text-gray-900">&#8377;{{ item.total_price }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <a href="{% url 'canteen:remove_order_detail' item.order_details_id %}" class="text-red-500 hover:text-red-700">Remove</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
-    <div class="mt-8 flex justify-between">
-        <a href="{% url 'canteen:index' %}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Continue Shopping</a>
-        <a href="{% url 'canteen:payment' %}" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">Proceed to Checkout</a>
+    <div class="mt-8 flex flex-col sm:flex-row justify-between items-center">
+        <a href="{% url 'canteen:index' %}" class="w-full sm:w-auto mb-4 sm:mb-0 sm:mr-4 bg-blue-600 hover:bg-blue-800 text-white font-semibold py-3 px-6 rounded-lg text-center">Continue Shopping</a>
+        <a href="{% url 'canteen:payment' %}" class="w-full sm:w-auto bg-green-600 hover:bg-green-800 text-white font-semibold py-3 px-6 rounded-lg text-center">Proceed to Checkout</a>
     </div>
     {% else %}
-    <p>Your cart is empty.</p>
+    <p class="text-center text-lg font-semibold text-gray-700">Your cart is empty.</p>
     {% endif %}
 </div>
-    
-    <script>
-    
-    const qunatity_update=document.querySelectorAll('#update-quantity');
-    qunatity_update.forEach(a =>{a.addEventListener('click',event=>{
-        
-        
-    });});
-    </script>
-
 {% endblock %}

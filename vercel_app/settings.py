@@ -176,8 +176,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_REDIRECT_URL = 'canteen:index'
 LOGIN_URL = 'canteen:login'
 AUTH_USER_MODEL = 'canteen.CustomUser'
-API_URL='http://34.200.43.125:8000/api'
-HOST='http://34.200.43.125:8000'
+API_URL='http://localhost:8000/api'
+HOST='localhost:8000'
 # API_URL='https://potential-trout-j64rq5v9x6q2qgg4-8000.app.github.dev/api'
 
 

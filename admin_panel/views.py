@@ -5,11 +5,12 @@ from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.sites import requests
 from django.http import request
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 
 from canteen.models import *
 from canteen.views import calculate_total_amount
 from django.conf import settings
+
 
 @staff_member_required
 def filter_and_render(request):
@@ -18,7 +19,7 @@ def filter_and_render(request):
         if category != 'all':
             raw_data = FoodDetails.objects.filter(food__name=category).order_by('id')
         else:
-         raw_data = FoodDetails.objects.all().order_by('id')
+            raw_data = FoodDetails.objects.all().order_by('id')
     else:
         category = 'all'
         raw_data = FoodDetails.objects.all().order_by('id')
@@ -45,8 +46,7 @@ import requests
 
 
 def get_delivery_status(last_order_id):
-
-    url=f'{settings.API_URL}/orders/{last_order_id}/'
+    url = f'{settings.API_URL}/orders/{last_order_id}/'
     response = requests.get(url)
     if response.status_code == 200:
         response_data = response.json()
@@ -60,6 +60,7 @@ def get_remaining_orderdetails(last_order_id):
     response = requests.get(url)
     if response.status_code == 200:
         data = response.json()
+        # print(data)
         filtered_data = [item for item in data if not item['isdelivered']]
         # #print(filtered_data)
 
@@ -67,18 +68,22 @@ def get_remaining_orderdetails(last_order_id):
     pass
 
 
-
 @staff_member_required
 def view_orders(request):
-    print("view_orders called")
+    # print("view_orders called")
     if request.method == 'GET':
         url = f'{settings.API_URL}/orders/remainingorders/'
         response = requests.get(url)
 
         pending_orders_data = []
         if response.status_code == 200:
+
             pending_orders = response.json()
+
             for order in pending_orders:
+                print(order)
+                if order['payment_status'] == "Pending":
+                    continue
                 user_id = order['user']
 
                 last_order_id = order['id']
@@ -133,21 +138,20 @@ def view_orders(request):
 
         return JsonResponse({'success': True, 'orders': pending_orders_data})
 
-def change_order_status(order_id):
 
+def change_order_status(order_id):
     url = f'{settings.API_URL}/orders/{order_id}/orderdetails/'
     response = requests.get(url)
     if response.status_code == 200:
         response_data = response.json()
         for data in response_data:
-            if not  data['isdelivered']:
+            if not data['isdelivered']:
                 return False
         return True
 
 
-
-
 from django.http import JsonResponse
+
 
 @staff_member_required
 def mark_order_completed(request):
