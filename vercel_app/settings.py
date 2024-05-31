@@ -29,7 +29,7 @@ DEBUG = True
 # ALLOWED_HOSTS = ['localhost', '.vercel.app']
 # settings.py
 
-ALLOWED_HOSTS = ['34.200.43.125','3.93.68.206','localhost','127.0.0.1','0.0.0.0','.github.dev','.vercel.app', '.now.sh']
+ALLOWED_HOSTS = ['localhost','127.0.0.1','.vercel.app', '.now.sh','canteen-sek5.onrender.com']
 # Or * to allow all
 #this is easy
 
