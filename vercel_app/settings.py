@@ -96,23 +96,24 @@ WSGI_APPLICATION = 'vercel_app.wsgi.app'
 
 
 # DATABASES = {}
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'postgres',
-        'USER': 'postgres.tugesqzaeyvirqlgkdoj',
-        'PASSWORD': 'mibpub-nozxyj-6Cegso',
-        'HOST': 'aws-0-ap-south-1.pooler.supabase.com',  # Usually 'your-username.supabase.co'
-        'PORT': '5432',                 # Default PostgreSQL port
-    }
-
-}
 # DATABASES = {
 #     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'postgres',
+#         'USER': 'postgres.tugesqzaeyvirqlgkdoj',
+#
+#         'PASSWORD': 'pipce3-xAtdad-jahrow',
+#         'HOST': 'aws-0-ap-south-1.pooler.supabase.com',  # Usually 'your-username.supabase.co'
+#         'PORT': '5432',                 # Default PostgreSQL port
 #     }
+#
 # }
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
 
 # DATABASES = {
 #     'default': {
