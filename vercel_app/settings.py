@@ -16,7 +16,6 @@ import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
@@ -29,12 +28,11 @@ DEBUG = True
 # ALLOWED_HOSTS = ['localhost', '.vercel.app']
 # settings.py
 
-ALLOWED_HOSTS = ['localhost','127.0.0.1','.vercel.app', '.now.sh','canteen-sek5.onrender.com']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '.vercel.app', '.now.sh', 'canteen-sek5.onrender.com']
 # Or * to allow all
 #this is easy
 
 # ALLOWED_HOSTS = ['*']
-
 
 
 # Application definition
@@ -46,11 +44,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    
+
     'database',
     'canteen',
-'rest_framework',
-'admin_panel',
+    'rest_framework',
+    'admin_panel',
 
 ]
 
@@ -63,8 +61,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-   
-     
+
 ]
 
 ROOT_URLCONF = 'vercel_app.urls'
@@ -87,15 +84,10 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'vercel_app.wsgi.app'
 
-
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 # Note: Django modules for using databases are not support in serverless
 # environments like Vercel. You can use a database over HTTP, hosted elsewhere.
-
-
-
-
 
 
 DATABASES = {
@@ -106,7 +98,7 @@ DATABASES = {
 
         'PASSWORD': 'pipce3-xAtdad-jahrow',
         'HOST': 'aws-0-ap-south-1.pooler.supabase.com',  # Usually 'your-username.supabase.co'
-        'PORT': '5432',                 # Default PostgreSQL port
+        'PORT': '5432',  # Default PostgreSQL port
     }
 
 }
@@ -130,7 +122,6 @@ DATABASES = {
 # }
 
 
-
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
 
@@ -149,7 +140,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/4.1/topics/i18n/
 
@@ -160,7 +150,6 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
@@ -176,14 +165,11 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-
 LOGIN_REDIRECT_URL = 'canteen:index'
 LOGIN_URL = 'canteen:login'
 AUTH_USER_MODEL = 'canteen.CustomUser'
-API_URL='https://canteen-sek5.onrender.com/api'
-HOST='https://canteen-sek5.onrender.com:8000'
-
-
+API_URL = 'https://canteen-sek5.onrender.com/api'
+HOST = 'https://canteen-sek5.onrender.com:8000'
 
 RAZORPAY_KEY_ID = 'rzp_test_JTePD1c5RLT3nj'
-RAZORPAY_KEY_SECRET='7p5e6T5NGyUl4fgOJAYYIzze'
+RAZORPAY_KEY_SECRET = '7p5e6T5NGyUl4fgOJAYYIzze'
