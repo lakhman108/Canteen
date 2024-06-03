@@ -96,20 +96,7 @@ WSGI_APPLICATION = 'vercel_app.wsgi.app'
 
 
 
-# DATABASES = {}
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'defaultdb',
-#         'USER': 'avnadmin',
-#         'PASSWORD': 'AVNS_hedFNNeAMdHaXjnnCZu',
-#         'HOST': 'pg-2e9cd83e-fullstack108-bbd3.f.aivencloud.com',
-#         'PORT': '19645',
-#         'OPTIONS': {
-#             'sslmode': 'require',
-#         },
-#     }
-# }
+
 
 DATABASES = {
     'default': {
