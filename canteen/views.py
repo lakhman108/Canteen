@@ -6,7 +6,7 @@ from django.contrib.sites import requests
 from django.shortcuts import render, redirect
 from django.conf import settings
 from .forms import CustomUserLoginForm, CustomUserRegistrationForm
-from .models import CustomUser, Orders
+from .models import CustomUser, Orders, Payment
 from .models import FoodDetails
 import razorpay
 
@@ -189,7 +189,8 @@ def cart(request):
 
         cart_data = get_cart_data(user_id)
 
-        # Process the data as needed
+
+
         return render(request, 'cart.html', {'cart_data': cart_data})
     else:
         item_id = request.POST['item_id']
@@ -413,3 +414,5 @@ def sucess(request):
         messages.error(request, "Error occurred while updating order status.")
 
     return render(request, 'OrderStatus.html', {'waiting_list_id': get_waiting_list_id()})
+
+
