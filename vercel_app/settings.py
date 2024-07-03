@@ -163,8 +163,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_REDIRECT_URL = 'canteen:index'
 LOGIN_URL = 'canteen:login'
 AUTH_USER_MODEL = 'canteen.CustomUser'
-API_URL = 'https://canteen-sek5.onrender.com/api'
-HOST = 'https://canteen-sek5.onrender.com:8000'
+API_URL = 'http://54.175.87.64/api'
+HOST = 'http://54.175.87.64:8000'
 
 RAZORPAY_KEY_ID = os.environ.get('RAZORPAY_KEY_ID')
 RAZORPAY_KEY_SECRET = os.environ.get('RAZORPAY_KEY_SECRET')
