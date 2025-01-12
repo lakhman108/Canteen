@@ -5,186 +5,253 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --primary-color: #4F46E5;
+            --error-color: #EF4444;
+            --success-color: #10B981;
+            --text-color: #1F2937;
+            --border-color: #E5E7EB;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
             background-image: url("{% static 'loginsinup.png' %}");
             background-repeat: no-repeat;
             background-size: cover;
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 0;
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
             display: flex;
-            justify-content: center;
             align-items: center;
-            height: 100vh;
+            justify-content: center;
+            padding: 1.5rem;
+            position: relative;
+            color: var(--text-color);
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(
+                rgba(0, 0, 0, 0.6),
+                rgba(0, 0, 0, 0.4)
+            );
+            z-index: 0;
         }
 
         .form-container {
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 15px;
-            padding: 20px;
-            width: 300px;
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            position: relative;
+            width: 100%;
+            max-width: 440px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 1rem;
+            padding: 2.5rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+                        0 10px 10px -5px rgba(0, 0, 0, 0.04);
             backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            text-align: center;
+            z-index: 1;
         }
 
         .form-container h2 {
-            color: #fff;
+            color: var(--text-color);
+            font-size: 1.875rem;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            text-align: center;
         }
 
-        .form-container form {
-            display: flex;
-            flex-direction: column;
+        .form-group {
+            margin-bottom: 1.5rem;
         }
 
-        .form-container input {
-            margin: 10px 0;
-            padding: 8px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            background: rgba(255, 255, 255, 0.7);
+        label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: var(--text-color);
         }
 
-        .form-container button {
-            background-color: #007BFF;
-            color: #fff;
-            padding: 10px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
+        input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            transition: all 0.2s;
+            background: white;
         }
 
-        .form-container button:hover {
-            background-color: #0056b3;
+        input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
         }
 
-        .switch-form {
-            margin-top: 10px;
-        }
-
-        .switch-form a {
-            color: #007BFF;
-            text-decoration: none;
-        }
-
-        .password-requirements {
-            font-size: 0.8rem;
+        .error {
+            color: var(--error-color);
+            font-size: 0.875rem;
             margin-top: 0.5rem;
         }
 
-        .password-requirements .message {
-            color: #dc3545;
-            margin-bottom: 0.25rem;
+        button {
+            width: 100%;
+            padding: 0.875rem;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
         }
 
-        .password-requirements .valid {
-            color: #28a745;
+        button:hover {
+            background: #4338CA;
+            transform: translateY(-1px);
         }
 
-        li {
-            transition: color 1s linear;
-            color: red;
+        button:active {
+            transform: translateY(0);
         }
 
-        @media (max-width: 768px) {
+        .switch-form {
+            text-align: center;
+            margin-top: 1.5rem;
+            color: var(--text-color);
+            font-size: 0.875rem;
+        }
+
+        .switch-form a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 500;
+            margin-left: 0.25rem;
+        }
+
+        .switch-form a:hover {
+            text-decoration: underline;
+        }
+
+        .password-requirements {
+            margin-top: 0.75rem;
+            font-size: 0.875rem;
+        }
+
+        .message {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.375rem;
+            color: #6B7280;
+        }
+
+        .message.valid {
+            color: var(--success-color);
+        }
+
+        .message.invalid {
+            color: var(--error-color);
+        }
+
+        .icon {
+            margin-right: 0.5rem;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        @media (max-width: 640px) {
             .form-container {
-                width: 80%;
-                padding: 15px;
+                padding: 1.5rem;
             }
 
-            .form-container input,
-            .form-container button {
-                padding: 10px;
-                margin: 8px 0;
-            }
-        }
-
-        @media (min-width: 769px) {
-            .form-container {
-                width: 400px;
-                padding: 30px;
+            .form-container h2 {
+                font-size: 1.5rem;
+                margin-bottom: 1.5rem;
             }
         }
     </style>
 </head>
 <body>
     <div class="form-container">
-        <h2>Register</h2>
+        <h2>Create your account</h2>
         <form action="{% url 'canteen:register' %}" method="post">
             {% csrf_token %}
             {{ form.non_field_errors }}
-            {{ form.username.label_tag }}
-            {{ form.username }}
-            {% if form.username.errors %}
-                <div class="error">{{ form.username.errors }}</div>
-            {% endif %}
-            {{ form.password1.label_tag }}
-            {{ form.password1 }}
-            {% if form.password1.errors %}
-                <div class="error">{{ form.password1.errors }}</div>
-            {% endif %}
-            <div class="password-requirements" id="password-messages"></div>
-            {{ form.password2.label_tag }}
-            {{ form.password2 }}
-            {% if form.password2.errors %}
-                <div class="error">{{ form.password2.errors }}</div>
-            {% endif %}
-            <button type="submit">Register</button>
+            
+            <div class="form-group">
+                {{ form.username.label_tag }}
+                {{ form.username }}
+                {% if form.username.errors %}
+                    <div class="error">{{ form.username.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                {{ form.password1.label_tag }}
+                {{ form.password1 }}
+                <div class="password-requirements" id="password-messages"></div>
+                {% if form.password1.errors %}
+                    <div class="error">{{ form.password1.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                {{ form.password2.label_tag }}
+                {{ form.password2 }}
+                {% if form.password2.errors %}
+                    <div class="error">{{ form.password2.errors }}</div>
+                {% endif %}
+            </div>
+
+            <button type="submit">Create Account</button>
         </form>
         <div class="switch-form">
-            Already have an account? <a href="{% url 'canteen:login' %}">Login</a>
+            Already have an account?<a href="{% url 'canteen:login' %}">Sign in</a>
         </div>
     </div>
 
     <script>
-        // Get the password input field
         const password1Input = document.getElementById('id_password1');
-
-        // Add event listener for input events
         password1Input.addEventListener('input', validatePassword);
 
-        // Function to validate the password
         function validatePassword() {
             const password = this.value;
             const messages = [];
             const validMessages = [];
 
-            // Check password length
             if (password.length < 8) {
-                messages.push('Password must be at least 8 characters long');
+                messages.push('<span class="icon">⨯</span> At least 8 characters');
             } else {
-                validMessages.push('Password has at least 8 characters');
+                validMessages.push('<span class="icon">✓</span> At least 8 characters');
             }
-
-            // Check for capital letter
             if (!/[A-Z]/.test(password)) {
-                messages.push('Password must contain at least one capital letter');
+                messages.push('<span class="icon">⨯</span> One uppercase letter');
             } else {
-                validMessages.push('Password contains a capital letter');
+                validMessages.push('<span class="icon">✓</span> One uppercase letter');
             }
-
-            // Check for lowercase letter
             if (!/[a-z]/.test(password)) {
-                messages.push('Password must contain at least one lowercase letter');
+                messages.push('<span class="icon">⨯</span> One lowercase letter');
             } else {
-                validMessages.push('Password contains a lowercase letter');
+                validMessages.push('<span class="icon">✓</span> One lowercase letter');
             }
-
-            // Check for number
             if (!/[0-9]/.test(password)) {
-                messages.push('Password must contain at least one number');
+                messages.push('<span class="icon">⨯</span> One number');
             } else {
-                validMessages.push('Password contains a number');
+                validMessages.push('<span class="icon">✓</span> One number');
             }
 
             const messagesDiv = document.getElementById('password-messages');
             messagesDiv.innerHTML = `
-                ${messages.map(message => `<div class="message">${message}</div>`).join('')}
-                ${validMessages.map(message => `<div class="message valid">${message}</div>`).join('')}
+                ${messages.map(msg => `<div class="message invalid">${msg}</div>`).join('')}
+                ${validMessages.map(msg => `<div class="message valid">${msg}</div>`).join('')}
             `;
         }
     </script>
