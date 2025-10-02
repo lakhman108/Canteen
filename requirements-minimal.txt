@@ -1,0 +1,22 @@
+# Core Django dependencies
+Django==4.1.13
+djangorestframework==3.15.1
+gunicorn==22.0.0
+
+# Database
+psycopg2-binary==2.9.9
+
+# Environment and configuration
+python-dotenv==1.0.1
+
+# Static files
+whitenoise==6.6.0
+
+# Image handling (if needed by your models)
+pillow==10.3.0
+
+# HTTP requests (used in views.py)
+requests==2.32.0
+
+# Payment processing
+razorpay==1.4.2
