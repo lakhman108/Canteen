@@ -6,8 +6,7 @@ from django.contrib.sites import requests
 from django.shortcuts import render, redirect
 from django.conf import settings
 from .forms import CustomUserLoginForm, CustomUserRegistrationForm
-from .models import CustomUser, Orders, Payment
-from .models import FoodDetails
+from .models import CustomUser, Orders, Payment, OrderDetails, FoodDetails
 import razorpay
 
 
@@ -119,30 +118,46 @@ from django.http import HttpResponse
 
 
 def get_order_id(user_id):
-    url = f'{settings.API_URL}/customusers/{user_id}/orders/'
-
-    response = requests.get(url)
-
-    if response.status_code == 200:
-        data = response.json()
-        if (data == []):
+    try:
+        # Get the latest order for the user that's still pending
+        order = Orders.objects.filter(
+            user_id=user_id, 
+            delivery_status='Pending'
+        ).order_by('-id').first()
+        
+        if order:
+            return order.id
+        else:
             return "No order found"
-        order_id = data[0]['id']
-        print("order id found" + str(order_id))
-        return order_id
-    else:
+    except Exception as e:
         return "No order found"
 
 
 def get_orderdetails(order_id):
-    print("get order details called")
-    url = f'{settings.API_URL}/orders/{order_id}/orderdetails/'
-    response = requests.get(url)
-    if response.status_code == 200:
-        data = response.json()
+    try:
+        # Use select_related to avoid N+1 queries
+        order_details = OrderDetails.objects.filter(
+            order_id=order_id,
+            isdelivered=False  # Only get undelivered items
+        ).select_related('item', 'order').all()
+        
+        data = []
+        for detail in order_details:
+            data.append({
+                'id': detail.id,
+                'order': detail.order.id,
+                'item': {
+                    'id': detail.item.id,
+                    'name': detail.item.name,
+                    'price': float(detail.item.price),
+                    'photo_url': detail.item.photo_url
+                },
+                'qty': detail.qty,
+                'isdelivered': detail.isdelivered
+            })
         return data
-    else:
-        return "No order details found"
+    except Exception as e:
+        return []
 
 
 def calculate_total_amount(order_details):
@@ -154,31 +169,30 @@ def calculate_total_amount(order_details):
 
 
 def get_cart_data(user_id):
-    cart_data = []
-    order_id = get_order_id(user_id)
-    if (order_id == "No order found"):
-        print("No order found")
+    try:
+        # Direct query with select_related to avoid N+1 queries
+        # Only get undelivered items from pending orders
+        order_details = OrderDetails.objects.filter(
+            order__user_id=user_id,
+            order__delivery_status='Pending',
+            isdelivered=False
+        ).select_related('item', 'order').all()
+        
+        cart_data = []
+        for detail in order_details:
+            cart_data.append({
+                'order_details_id': detail.id,
+                'food_id': detail.item.id,
+                'food_name': detail.item.name,
+                'price': float(detail.item.price),
+                'image_url': detail.item.photo_url,
+                'quantity': detail.qty,
+                'total_price': float(detail.item.price) * detail.qty,
+            })
+        
         return cart_data
-    order_details_response = get_orderdetails(order_id)
-
-    for detail in order_details_response:
-        item = detail['item']
-        # #print(detail)
-        # #print(item)
-        if (detail['isdelivered'] == True):
-            continue
-        #print(detail['isdelivered'])
-        cart_data.append({
-            'order_details_id': detail['id'],  # This is the order details ID, not the item ID
-            'food_id': item['id'],
-            'food_name': item['name'],
-            'price': item['price'],
-            'image_url': item['photo_url'],
-            'quantity': detail['qty'],
-            'total_price': item['price'] * detail['qty'],
-        })
-
-    return cart_data
+    except Exception as e:
+        return []
 
 
 def cart(request):
@@ -193,20 +207,44 @@ def cart(request):
 
         return render(request, 'cart.html', {'cart_data': cart_data})
     else:
-        item_id = request.POST['item_id']
-
-        url = f'{settings.API_URL}/orderdetails/'
-        data = {
-            'user': int(user_id),
-            'item': int(item_id),
-            'qty': int(1),
-        }
-        response = requests.post(url, data=data)
-        print("\n\n\n\n\n")
-        print(data)
-        print(response.json())
-        print("\n\n\n\n\n")
-        return HttpResponse(response.json())
+        try:
+            item_id = int(request.POST['item_id'])
+            qty = 1
+            
+            # Check if item exists and has enough stock
+            food_item = FoodDetails.objects.get(id=item_id)
+            if food_item.stock_qty < qty:
+                return HttpResponse({'message': 'Not enough stock'})
+            
+            # Get or create pending order
+            order, created = Orders.objects.get_or_create(
+                user_id=user_id,
+                delivery_status='Pending',
+                defaults={'payment_status': 'Pending'}
+            )
+            
+            # Check if item already in cart
+            order_detail, created = OrderDetails.objects.get_or_create(
+                order=order,
+                item_id=item_id,
+                defaults={'qty': qty, 'isdelivered': False}
+            )
+            
+            if not created:
+                # Item already exists, update quantity
+                order_detail.qty += qty
+                order_detail.save()
+            
+            # Update stock
+            food_item.stock_qty -= qty
+            food_item.save()
+            
+            return HttpResponse({'message': 'Item added to cart successfully'})
+            
+        except FoodDetails.DoesNotExist:
+            return HttpResponse({'error': 'Item not found'})
+        except Exception as e:
+            return HttpResponse({'error': 'An error occurred'})
 
 
 def about(request):
@@ -218,45 +256,56 @@ def contact(request):
 
 
 def remove_order_detail(request, order_detail_id):
-    url = f'{settings.API_URL}/orderdetails/{order_detail_id}/'
-    response = requests.delete(url)
-
-    if response.status_code == 204:
-        # OrderDetails object successfully deleted
-        return redirect('canteen:cart')
-    else:
-        # Handle the error case
-        return redirect('canteen:cart')
+    try:
+        order_detail = OrderDetails.objects.get(id=order_detail_id)
+        
+        # Restore stock
+        food_item = order_detail.item
+        food_item.stock_qty += order_detail.qty
+        food_item.save()
+        
+        # Delete order detail
+        order_detail.delete()
+        
+    except OrderDetails.DoesNotExist:
+        pass
+    
+    return redirect('canteen:cart')
 
 
 def update_order_detail_quantity(request, order_detail_id, action):
-    url = f'{settings.API_URL}/orderdetails/{order_detail_id}/'
-
-    if action == 'add':
-        quantity_change = 1
-    elif action == 'decrease':
-        quantity_change = -1
-    else:
-        return redirect('canteen:cart')  # Invalid action, redirect to cart view
-
-    # Get the current order detail data
-    response = requests.get(url)
-    if response.status_code == 200:
-        data = response.json()
-        order_id = data['order']
-        new_quantity = data['qty'] + quantity_change
-
-        if new_quantity < 1:
-            # If the new quantity is less than 1, delete the order detail
-            requests.delete(url)
+    try:
+        order_detail = OrderDetails.objects.get(id=order_detail_id)
+        food_item = order_detail.item
+        
+        if action == 'add':
+            # Check stock availability
+            if food_item.stock_qty < 1:
+                messages.error(request, 'Not enough stock available')
+                return redirect('canteen:cart')
+            
+            order_detail.qty += 1
+            food_item.stock_qty -= 1
+            
+        elif action == 'decrease':
+            if order_detail.qty <= 1:
+                # Remove item completely and restore stock
+                food_item.stock_qty += order_detail.qty
+                food_item.save()
+                order_detail.delete()
+                return redirect('canteen:cart')
+            else:
+                order_detail.qty -= 1
+                food_item.stock_qty += 1
         else:
-            # Update the order detail quantity
-            payload = {
-                'order': order_id,
-                'qty': new_quantity
-            }
-            requests.put(url, json=payload)
-
+            return redirect('canteen:cart')
+        
+        order_detail.save()
+        food_item.save()
+        
+    except OrderDetails.DoesNotExist:
+        pass
+    
     return redirect('canteen:cart')
 
 
@@ -321,21 +370,26 @@ def payment(request):
         messages.error(request, "Error occurred while creating Razorpay payment.")
         return redirect('canteen:index')
 
-    payment_data = {
-        'user': user_id,
-        'order': order_id,
-        'razorpay_order_id': payment['id'],
-    }
-
     try:
-        url = f'{settings.API_URL}/payment/'
-        response = requests.post(url, data=payment_data)
-        response.raise_for_status()  # Raise an exception for non-2xx status codes
-        # if response.status_code == 201:
-        #print("Payment created successfully")
-    except requests.exceptions.RequestException as e:
-        # Handle exceptions related to the HTTP request
-        #print(f"Error occurred while creating payment: {e}")
+        # Create or update payment record directly
+        order_obj = Orders.objects.get(id=order_id)
+        payment_obj, created = Payment.objects.get_or_create(
+            order=order_obj,
+            defaults={
+                'amount': total_amount / 100,  # Convert back from paisa to rupees
+                'razorpay_order_id': payment['id']
+            }
+        )
+        
+        if not created:
+            payment_obj.amount = total_amount / 100
+            payment_obj.razorpay_order_id = payment['id']
+            payment_obj.save()
+            
+    except Orders.DoesNotExist:
+        messages.error(request, "Order not found.")
+        return redirect('canteen:index')
+    except Exception as e:
         messages.error(request, "Error occurred while creating payment.")
 
     #print(response.status_code)
@@ -374,44 +428,30 @@ def sucess(request):
         messages.error(request, "User ID not found in the session.")
         return redirect('canteen:index')
 
-    payment_data = {
-        'user': user_id,
-        'order': get_order_id(user_id),
-        'razorpay_payment_id': razorpay_payment_id,
-        'razorpay_order_id': razorpay_order_id,
-        'razorpay_signature': razorpay_signature,
-    }
-
     try:
-        url = f'{settings.API_URL}/payment/{get_order_id(user_id)}/paymentdeatils/'
-        response = requests.get(url)
-        response.raise_for_status()  # Raise an exception for non-2xx status codes
-
-        if response.status_code == 200:
-            data = response.json()
-            payment_id = data[0]['id']
-            url = f'{settings.API_URL}/payment/{payment_id}/'
-            response = requests.put(url, data=payment_data)
-            response.raise_for_status()  # Raise an exception for non-2xx status codes
-            #print(data)
-    except requests.exceptions.RequestException as e:
-        # Handle exceptions related to the HTTP request
-        #print(f"Error occurred while updating payment details: {e}")
+        order_id = get_order_id(user_id)
+        if order_id == "No order found":
+            messages.error(request, "Order not found.")
+            return redirect('canteen:index')
+            
+        # Update payment details
+        order_obj = Orders.objects.get(id=order_id)
+        payment_obj = Payment.objects.get(order=order_obj)
+        
+        payment_obj.razorpay_payment_id = razorpay_payment_id
+        payment_obj.razorpay_order_id = razorpay_order_id
+        payment_obj.razorpay_signature = razorpay_signature
+        payment_obj.save()
+        
+        # Update order status to paid
+        order_obj.payment_status = 'Paid'
+        order_obj.save()
+        
+    except (Orders.DoesNotExist, Payment.DoesNotExist):
+        messages.error(request, "Order or payment not found.")
+        return redirect('canteen:index')
+    except Exception as e:
         messages.error(request, "Error occurred while updating payment details.")
-
-    try:
-        url = f'{settings.API_URL}/orders/{get_order_id(user_id)}/'
-        data = {
-            "payment_status": "Paid",
-            "user": user_id
-        }
-        response = requests.put(url, data=data)
-        response.raise_for_status()  # Raise an exception for non-2xx status codes
-        #print(response.json())
-    except requests.exceptions.RequestException as e:
-        # Handle exceptions related to the HTTP request
-        #print(f"Error occurred while updating order status: {e}")
-        messages.error(request, "Error occurred while updating order status.")
 
     return render(request, 'OrderStatus.html', {'waiting_list_id': get_waiting_list_id()})
 

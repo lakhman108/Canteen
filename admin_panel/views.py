@@ -31,14 +31,11 @@ def filter_and_render(request):
 
 
 def get_username(user_id):
-    url = f'{settings.API_URL}/customusers/{user_id}/'
-    response = requests.get(url)
-
-    if response.status_code == 200:
-        data = response.json()
-        return data['username']
-    else:
-        return "Error occurred while fetching username"
+    try:
+        user = CustomUser.objects.get(id=user_id)
+        return user.username
+    except CustomUser.DoesNotExist:
+        return "Unknown User"
 
 
 from django.shortcuts import render
@@ -56,98 +53,129 @@ def get_delivery_status(last_order_id):
 
 
 def get_remaining_orderdetails(last_order_id):
-    url = f'{settings.API_URL}/orders/{last_order_id}/orderdetails/'
-    response = requests.get(url)
-    if response.status_code == 200:
-        data = response.json()
-        # print(data)
-        filtered_data = [item for item in data if not item['isdelivered']]
-        # #print(filtered_data)
-
-        return filtered_data
-    pass
+    try:
+        # Use select_related to avoid N+1 queries
+        order_details = OrderDetails.objects.filter(
+            order_id=last_order_id,
+            isdelivered=False
+        ).select_related('item').all()
+        
+        data = []
+        for detail in order_details:
+            data.append({
+                'id': detail.id,
+                'order': detail.order.id,
+                'item': {
+                    'id': detail.item.id,
+                    'name': detail.item.name,
+                    'price': float(detail.item.price),
+                    'photo_url': detail.item.photo_url
+                },
+                'qty': detail.qty,
+                'isdelivered': detail.isdelivered
+            })
+        return data
+    except Exception as e:
+        return []
 
 
 @staff_member_required
 def view_orders(request):
-    # print("view_orders called")
     if request.method == 'GET':
-        url = f'{settings.API_URL}/orders/remainingorders/'
-        response = requests.get(url)
+        try:
+            # Get paid orders that are still pending delivery with optimized queries
+            pending_orders = Orders.objects.filter(
+                delivery_status='Pending',
+                payment_status='Paid'
+            ).select_related('user').prefetch_related(
+                'order_details__item'
+            ).all()
 
-        pending_orders_data = []
-        if response.status_code == 200:
-
-            pending_orders = response.json()
-
+            pending_orders_data = []
             for order in pending_orders:
-                print(order)
-                if order['payment_status'] == "Pending":
-                    continue
-                user_id = order['user']
+                # Get undelivered order details
+                order_details = []
+                total_amount = 0
+                
+                for detail in order.order_details.filter(isdelivered=False):
+                    order_detail_data = {
+                        'id': detail.id,
+                        'order': order.id,
+                        'item': {
+                            'id': detail.item.id,
+                            'name': detail.item.name,
+                            'price': float(detail.item.price),
+                            'photo_url': detail.item.photo_url
+                        },
+                        'qty': detail.qty,
+                        'isdelivered': detail.isdelivered
+                    }
+                    order_details.append(order_detail_data)
+                    total_amount += float(detail.item.price) * detail.qty
 
-                last_order_id = order['id']
+                if order_details:  # Only include orders with undelivered items
+                    pending_orders_data.append({
+                        'order_id': order.id,
+                        'user_name': order.user.username,
+                        'user_id': order.user.id,
+                        'total_amount': total_amount,
+                        'order_details': order_details
+                    })
 
-                order_details = get_remaining_orderdetails(last_order_id)
-
-                total_amount = calculate_total_amount(order_details)
-
-                pending_orders_data.append({
-                    'order_id': last_order_id,
-                    'user_name': get_username(user_id),
-                    'user_id': user_id,
-                    'total_amount': total_amount,
-                    'order_details': order_details
-                })
-        else:
-            # Handle the error case
+            context = {'orders': pending_orders_data}
+            return render(request, 'admin_panel/ManageOrders.html', context)
+            
+        except Exception as e:
             messages.error(request, "Error occurred while fetching pending orders.")
             return redirect('admin_panel:view_orders')
 
-        context = {'orders': pending_orders_data}
-        return render(request, 'admin_panel/ManageOrders.html', context)
-
     elif request.method == 'POST':
         # Handle the AJAX request after marking an order as completed
-        url = f'{settings.API_URL}/orders/remainingorders/'
-        response = requests.get(url)
+        try:
+            pending_orders = Orders.objects.filter(
+                delivery_status='Pending',
+                payment_status='Paid'
+            ).select_related('user').prefetch_related(
+                'order_details__item'
+            ).all()
 
-        pending_orders_data = []
-        if response.status_code == 200:
-            pending_orders = response.json()
+            pending_orders_data = []
             for order in pending_orders:
-                user_id = order['user']
+                order_details = []
+                total_amount = 0
+                
+                for detail in order.order_details.filter(isdelivered=False):
+                    order_detail_data = {
+                        'id': detail.id,
+                        'order': order.id,
+                        'item': {
+                            'id': detail.item.id,
+                            'name': detail.item.name,
+                            'price': float(detail.item.price),
+                            'photo_url': detail.item.photo_url
+                        },
+                        'qty': detail.qty,
+                        'isdelivered': detail.isdelivered
+                    }
+                    order_details.append(order_detail_data)
+                    total_amount += float(detail.item.price) * detail.qty
 
-                last_order_id = order['id']
+                if order_details:
+                    pending_orders_data.append({
+                        'order_id': order.id,
+                        'user_name': order.user.username,
+                        'user_id': order.user.id,
+                        'total_amount': total_amount,
+                        'order_details': order_details
+                    })
 
-                order_details = get_remaining_orderdetails(last_order_id)
-
-                total_amount = calculate_total_amount(order_details)
-
-                pending_orders_data.append({
-                    'order_id': last_order_id,
-                    'user_name': get_username(user_id),
-                    'user_id': user_id,
-                    'total_amount': total_amount,
-                    'order_details': order_details
-                })
-        else:
-
-            # Handle the error case
+            return JsonResponse({'success': True, 'orders': pending_orders_data})
+            
+        except Exception as e:
             return JsonResponse({'success': False, 'error': 'Error occurred while fetching pending orders.'})
 
-        return JsonResponse({'success': True, 'orders': pending_orders_data})
 
 
-def change_order_status(order_id):
-    url = f'{settings.API_URL}/orders/{order_id}/orderdetails/'
-    response = requests.get(url)
-    if response.status_code == 200:
-        response_data = response.json()
-        for data in response_data:
-            if not data['isdelivered']:
-                return False
-        return True
 
 
 from django.http import JsonResponse
@@ -156,68 +184,70 @@ from django.http import JsonResponse
 @staff_member_required
 def mark_order_completed(request):
     if request.method == 'POST':
-        order_id = request.POST.get('order_id')
-        user_id = request.POST.get('user_id')
-        order_detail_id = request.POST.get('order_detail_id')
-        qty = request.POST.get('qty')
-
-        url = f'{settings.API_URL}/orderdetails/{order_detail_id}/'
-        data = {
-            "order": order_id,
-            "qty": qty,
-            "isdelivered": True
-        }
-        response = requests.put(url, data=data)
-
-        if change_order_status(order_id):
-            url = f'{settings.API_URL}/orders/{order_id}/'
-            data = {
-                "delivery_status": "Delivered",
-                "user": user_id
-            }
-            response = requests.put(url, data=data)
-
-        if response.status_code == 200:
-            # Fetch the updated orders data and return it as JSON response
-            url = f'{settings.API_URL}/orders/remainingorders/'
-            response = requests.get(url)
+        try:
+            order_id = int(request.POST.get('order_id'))
+            order_detail_id = int(request.POST.get('order_detail_id'))
+            
+            # Mark the specific order detail as delivered
+            order_detail = OrderDetails.objects.get(id=order_detail_id)
+            order_detail.isdelivered = True
+            order_detail.save()
+            
+            # Check if all items in the order are delivered
+            order = Orders.objects.get(id=order_id)
+            remaining_items = OrderDetails.objects.filter(
+                order=order, 
+                isdelivered=False
+            ).count()
+            
+            if remaining_items == 0:
+                # All items delivered, mark order as delivered
+                order.delivery_status = 'Delivered'
+                order.save()
+            
+            # Get updated orders data
+            pending_orders = Orders.objects.filter(
+                delivery_status='Pending',
+                payment_status='Paid'
+            ).select_related('user').prefetch_related(
+                'order_details__item'
+            ).all()
 
             pending_orders_data = []
-            if response.status_code == 200:
-                pending_orders = response.json()
-                for order in pending_orders:
-                    user_id = order['user']
-                    last_order_id = order['id']
-                    order_details = get_remaining_orderdetails(last_order_id)
+            for order in pending_orders:
+                order_details = []
+                total_amount = 0
+                
+                for detail in order.order_details.filter(isdelivered=False):
+                    order_detail_data = {
+                        'id': detail.id,
+                        'order': order.id,
+                        'item': {
+                            'id': detail.item.id,
+                            'name': detail.item.name,
+                            'price': float(detail.item.price),
+                            'photo_url': detail.item.photo_url
+                        },
+                        'qty': detail.qty,
+                        'isdelivered': detail.isdelivered
+                    }
+                    order_details.append(order_detail_data)
+                    total_amount += float(detail.item.price) * detail.qty
 
-                    total_amount = calculate_total_amount(order_details)
-
-                    user_orders_data = []
-                    for order_detail in order_details:
-                        order_detail_data = {
-                            'id': order_detail['id'],
-                            'order': last_order_id,
-                            'item': {
-                                'id': order_detail['item']['id'],
-                                'name': order_detail['item']['name'],
-                                'price': order_detail['item']['price'],
-                                'photo_url': order_detail['item']['photo_url']
-                            },
-                            'qty': order_detail['qty'],
-                            'isdelivered': order_detail['isdelivered']
-                        }
-                        user_orders_data.append(order_detail_data)
-
+                if order_details:
                     pending_orders_data.append({
-                        'order_id': last_order_id,
-                        'user_name': get_username(user_id),
-                        'user_id': user_id,
+                        'order_id': order.id,
+                        'user_name': order.user.username,
+                        'user_id': order.user.id,
                         'total_amount': total_amount,
-                        'orders': user_orders_data
+                        'orders': order_details
                     })
 
             return JsonResponse({'success': True, 'orders': pending_orders_data})
-        else:
-            return JsonResponse({'success': False, 'error': 'Error updating order status'})
+            
+        except (OrderDetails.DoesNotExist, Orders.DoesNotExist, ValueError):
+            return JsonResponse({'success': False, 'error': 'Order not found'})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': 'An error occurred'})
     else:
         return JsonResponse({'success': False, 'error': 'Invalid request method'})

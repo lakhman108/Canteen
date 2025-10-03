@@ -83,6 +83,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'vercel_app.context_processors.base_url',
             ],
         },
     },
@@ -166,8 +167,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_REDIRECT_URL = 'canteen:index'
 LOGIN_URL = 'canteen:login'
 AUTH_USER_MODEL = 'canteen.CustomUser'
-API_URL = 'https://canteen-sek5.onrender.com/api'
-HOST = 'https://canteen-sek5.onrender.com:8000'
+API_URL = 'http://localhost:8000/api'
+HOST = 'http://localhost:8000'
 
 RAZORPAY_KEY_ID = os.environ.get('RAZORPAY_KEY_ID')
 RAZORPAY_KEY_SECRET = os.environ.get('RAZORPAY_KEY_SECRET')
+
+BASE_URL = os.environ.get('BASE_URL', 'http://localhost:8000')
