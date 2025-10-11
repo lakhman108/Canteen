@@ -20,4 +20,4 @@ venv.bak/
 
 docker-compose
 
-./staticfiles_build/*
+/staticfiles_build/*
