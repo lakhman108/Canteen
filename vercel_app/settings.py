@@ -41,7 +41,15 @@ ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')
 # ALLOWED_HOSTS = ['*']
 
 
-# Application definition
+# CSRF Settings for production
+CSRF_TRUSTED_ORIGINS = [
+    origin.strip() 
+    for origin in os.getenv('CSRF_TRUSTED_ORIGINS', '').split(',') 
+    if origin.strip()
+]
+
+
+
 
 INSTALLED_APPS = [
     'django.contrib.admin',
