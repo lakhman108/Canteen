@@ -1,55 +1,53 @@
-# Use the official Python image from the Docker Hub
-FROM python:3.9-slim AS builder
+# Use Python 3.12 Alpine for much smaller base image
+FROM python:3.12-alpine AS builder
 
-# Set environment variables to reduce Python bytecode and ensure output isn't buffered
 ENV PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
 
-# Set the working directory
 WORKDIR /app
 
-# Install system dependencies and Python dependencies
-COPY requirements.txt .
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
-    libpq-dev \
-    && pip install --upgrade pip \
-    && pip install --no-cache-dir -r requirements.txt \
-    && pip install gunicorn \
-    && apt-get purge -y --auto-remove build-essential \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+# Install build dependencies
+RUN apk add --no-cache --virtual .build-deps \
+    gcc \
+    musl-dev \
+    postgresql-dev \
+    python3-dev \
+    libffi-dev \
+    openssl-dev \
+    cargo \
+    rust
 
-# Copy the application code
+# Install Python dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir --user -r requirements.txt
+
+# Final stage - minimal runtime image
+FROM python:3.12-alpine
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PATH=/root/.local/bin:$PATH
+
+WORKDIR /app
+
+# Install only runtime dependencies
+RUN apk add --no-cache \
+    postgresql-client \
+    libpq \
+    bash
+
+# Copy Python packages from builder
+COPY --from=builder /root/.local /root/.local
+
+# Copy application code
 COPY . .
 
-# Use a smaller base image for the final stage
-FROM python:3.9-slim
+# Make entrypoint executable
+RUN chmod +x /app/docker-entrypoint.sh
 
-# Set environment variables
-ENV PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1
-
-WORKDIR /app
-
-# Install runtime dependencies only
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    libpq5 \
-    postgresql-client \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/* \
-    && pip install --no-cache-dir gunicorn
-
-# Copy from builder stage - only copy what's needed
-COPY --from=builder /app /app
-COPY --from=builder /usr/local/lib/python3.9/site-packages /usr/local/lib/python3.9/site-packages
-
-# Copy entrypoint script
-COPY docker-entrypoint.sh /docker-entrypoint.sh
-
-# Expose the port the app runs on
 EXPOSE 8000
 
-# Run the application
-ENTRYPOINT ["/docker-entrypoint.sh"]
+ENTRYPOINT ["/app/docker-entrypoint.sh"]
 CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "3", "vercel_app.wsgi:application"]

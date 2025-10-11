@@ -54,24 +54,22 @@ Thumbs.db
 local_settings.py
 db.sqlite3
 db.sqlite3-journal
-media
 
 # Static files (will be collected in container)
 staticfiles_build/
-static/
 
 # Docker
-Dockerfile
 docker-compose*.yml
-.dockerignore
 
 # Documentation
-README.md
 *.md
+!README.md
 
 # Vercel specific
 vercel.json
 build_files.sh
 
-# Development files
-requirements.txt
+# Test and development files
+.pytest_cache
+.coverage
+htmlcov/
