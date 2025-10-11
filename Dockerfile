@@ -35,6 +35,7 @@ WORKDIR /app
 # Install runtime dependencies only
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libpq5 \
+    postgresql-client \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* \
     && pip install --no-cache-dir gunicorn
@@ -43,12 +44,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY --from=builder /app /app
 COPY --from=builder /usr/local/lib/python3.9/site-packages /usr/local/lib/python3.9/site-packages
 
+# Copy entrypoint script
+COPY docker-entrypoint.sh /docker-entrypoint.sh
+
 # Expose the port the app runs on
 EXPOSE 8000
 
-# Create a non-root user to run the app
-RUN useradd -m appuser
-USER appuser
-
 # Run the application
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "vercel_app.wsgi:application"]
+ENTRYPOINT ["/docker-entrypoint.sh"]
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "3", "vercel_app.wsgi:application"]

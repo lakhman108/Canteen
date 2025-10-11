@@ -17,3 +17,5 @@ venv.bak/
 /workspaces/django-hello-world/staticfiles_build/static/
 
 .DS_Store
+
+docker-compose

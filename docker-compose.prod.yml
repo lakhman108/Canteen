@@ -30,10 +30,7 @@ services:
       db:
         condition: service_healthy
     restart: unless-stopped
-    command: >
-      sh -c "python manage.py migrate &&
-             python manage.py collectstatic --noinput &&
-             gunicorn --bind 0.0.0.0:8000 --workers 3 vercel_app.wsgi:application"
+    command: ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "3", "vercel_app.wsgi:application"]
 
 volumes:
   postgres_data:

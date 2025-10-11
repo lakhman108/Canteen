@@ -20,3 +20,5 @@ requests==2.32.0
 
 # Payment processing
 razorpay==1.4.2
+
+setuptools>=65.0.0
