@@ -58,11 +58,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-     'storages',
-    'database',
+    
     'canteen',
     'rest_framework',
     'admin_panel',
+    'database',
 
 ]
 
@@ -161,46 +161,13 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
-# MinIO/S3 Configuration
-USE_S3 = os.getenv('USE_S3', 'False').lower() in ('true', '1', 't')
+STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles_build' / 'static'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-if USE_S3:
-    # MinIO/S3 Static Files Configuration
-    AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
-    AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
-    AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')
-    AWS_S3_ENDPOINT_URL = os.getenv('MINIO_ACCESS_URL')  # MinIO endpoint
-    AWS_S3_CUSTOM_DOMAIN = f"{os.getenv('AWS_S3_URL').replace('https://', '').replace('http://', '')}/{AWS_STORAGE_BUCKET_NAME}"
-    
-    # S3 Configuration
-    AWS_S3_OBJECT_PARAMETERS = {
-        'CacheControl': 'max-age=86400',
-    }
-    AWS_S3_FILE_OVERWRITE = False
-    AWS_DEFAULT_ACL = 'public-read'
-    AWS_S3_VERIFY = True
-    AWS_QUERYSTRING_AUTH = False
-    
-    # Static files configuration with MinIO
-    STATIC_LOCATION = 'static'
-    STATIC_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/{STATIC_LOCATION}/"
-    STATICFILES_STORAGE = 'vercel_app.storage_backends.StaticStorage'
-    
-    # Media files configuration with MinIO
-    MEDIA_LOCATION = 'media'
-    MEDIA_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/{MEDIA_LOCATION}/"
-    DEFAULT_FILE_STORAGE = 'vercel_app.storage_backends.MediaStorage'
-    
-else:
-    # Local static files configuration (fallback)
-    STATIC_URL = 'static/'
-    STATICFILES_DIRS = os.path.join(BASE_DIR, 'static'),
-    STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles_build', 'static')
-    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-    
-    # Media files (local)
-    MEDIA_URL = '/media/'
-    MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+# Media files
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 

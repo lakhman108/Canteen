@@ -21,3 +21,6 @@ venv.bak/
 docker-compose
 
 /staticfiles_build/*
+
+.kiro/
+vscode/

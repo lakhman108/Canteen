@@ -23,17 +23,7 @@ from django.conf.urls.static import static
 from canteen.views import index
 
 
-from django.urls import path, include
-from rest_framework.routers import DefaultRouter
-from database.views import CustomUserViewSet, OrdersViewSet, FoodViewSet, FoodDetailsViewSet, OrderDetailsViewSet, PaymentViewSet
 
-router = DefaultRouter()
-router.register(r'customusers', CustomUserViewSet)
-router.register(r'orders', OrdersViewSet)
-router.register(r'food', FoodViewSet)
-router.register(r'fooddetails', FoodDetailsViewSet)
-router.register(r'orderdetails', OrderDetailsViewSet)
-router.register(r'payment', PaymentViewSet)
 
 
 urlpatterns = [
@@ -43,7 +33,7 @@ urlpatterns = [
     path('canteen/', include('canteen.urls',namespace='canteen')),
     path('admin_panel/', include('admin_panel.urls',namespace='admin_panel')),
     
-    path('api/', include(router.urls)),
+    path('', include('database.urls')),
 ]
 
 # add at the last
