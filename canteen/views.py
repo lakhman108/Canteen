@@ -411,14 +411,34 @@ def payment(request):
 
 # ... (other functions)
 
-def get_waiting_list_id():
-    orders = Orders.objects.filter(payment_status='Paid', delivery_status='Pending').order_by('id')
-
-    x = 0;
-    for order in orders:
-        x += 1
-
-    return x;
+def get_waiting_list_id(user_id):
+    """
+    Get the position of the user's order in the waiting queue.
+    Returns the position number (1-based) of the user's paid order.
+    """
+    try:
+        # Get the user's current paid order
+        user_order = Orders.objects.filter(
+            user_id=user_id,
+            payment_status='Paid',
+            delivery_status='Pending'
+        ).first()
+        
+        if not user_order:
+            return 0  # No paid order found
+        
+        # Count how many paid orders were created before this user's order
+        earlier_orders = Orders.objects.filter(
+            payment_status='Paid',
+            delivery_status='Pending',
+            id__lt=user_order.id  # Orders with smaller ID (created earlier)
+        ).count()
+        
+        # Return position (1-based indexing)
+        return earlier_orders + 1
+        
+    except Exception as e:
+        return 0
 
 
 def sucess(request):
@@ -464,6 +484,6 @@ def sucess(request):
     except Exception as e:
         messages.error(request, "Error occurred while updating payment details.")
 
-    return render(request, 'OrderStatus.html', {'waiting_list_id': get_waiting_list_id()})
+    return render(request, 'OrderStatus.html', {'waiting_list_id': get_waiting_list_id(user_id)})
 
 
