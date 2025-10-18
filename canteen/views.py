@@ -33,7 +33,6 @@ def contact(request):
     return HttpResponse('Contact page')
 
 
-@login_required
 def index(request):
     raw_data = FoodDetails.objects.all().order_by('id')
     data = []

@@ -44,6 +44,9 @@ COPY --from=builder /root/.local /root/.local
 # Copy application code
 COPY . .
 
+# Create static directory if it doesn't exist
+RUN mkdir -p static
+
 # Make entrypoint executable
 RUN chmod +x /app/docker-entrypoint.sh
 
