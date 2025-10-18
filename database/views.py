@@ -104,6 +104,7 @@ class FoodDetailsViewSet(viewsets.ModelViewSet):
                     status=status.HTTP_400_BAD_REQUEST
                 )
 
+            # Create the food item without specifying ID (let Django auto-generate)
             fooddetails = FoodDetails.objects.create(
                 name=name,
                 price=price,
@@ -113,10 +114,17 @@ class FoodDetailsViewSet(viewsets.ModelViewSet):
             )
             fooddetails_serializer = FoodDetailsSerializer(fooddetails)
             return Response(fooddetails_serializer.data, status=status.HTTP_201_CREATED)
+            
         except KeyError as e:
             return Response(
                 {'error': f'Missing required field: {str(e)}'}, 
                 status=status.HTTP_400_BAD_REQUEST
+            )
+        except Exception as e:
+            # Handle database integrity errors
+            return Response(
+                {'error': f'Database error: {str(e)}'}, 
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
 
