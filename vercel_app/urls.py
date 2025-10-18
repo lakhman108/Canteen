@@ -21,12 +21,17 @@ from django.conf.urls.static import static
 
 
 from canteen.views import index
+from django.http import HttpResponse
+
+def health_check(request):
+    return HttpResponse("Django is working! 🎉")
 
 
 
 
 
 urlpatterns = [
+    path('health/', health_check, name="health_check"),
     path('',index,name="index"),
     
     path('admin/', admin.site.urls),

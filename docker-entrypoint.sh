@@ -20,7 +20,7 @@ port = int(os.environ.get('DB_PORT', 5432))
 
 print(f"Attempting to connect to database at {host}:{port}...")
 
-max_attempts = 30
+max_attempts = 1
 attempt = 0
 
 while attempt < max_attempts:

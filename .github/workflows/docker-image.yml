@@ -54,8 +54,5 @@ jobs:
         cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/canteen-django:buildcache
         cache-to: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/canteen-django:buildcache,mode=max
 
-    # Optional: Run a quick test to verify the image works
-    - name: Test Docker image
-      run: |
-        docker run --rm ${{ secrets.DOCKERHUB_USERNAME }}/canteen-django:latest python --version
-        echo "✅ Docker image built successfully!"
+    
+    

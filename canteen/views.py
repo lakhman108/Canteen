@@ -8,6 +8,9 @@ from django.conf import settings
 from .forms import CustomUserLoginForm, CustomUserRegistrationForm
 from .models import CustomUser, Orders, Payment, OrderDetails, FoodDetails
 import razorpay
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 @login_required
@@ -32,23 +35,32 @@ def filteritems(request):
 def contact(request):
     return HttpResponse('Contact page')
 
-
+@login_required
 def index(request):
-    raw_data = FoodDetails.objects.all().order_by('id')
-    data = []
-    for item in raw_data:
-        data.append({'id': item.id, 'name': item.name, 'stock_qty': item.stock_qty, 'price': item.price,
-                     'photo_url': item.photo_url,
-                     'rating': item.rating})
+    try:
+        logger.info(f"Index view called - User: {request.user}, Method: {request.method}")
+        logger.info(f"Request path: {request.path}")
+        
+        # Test database connection
+        logger.info("Attempting to query FoodDetails...")
+        raw_data = FoodDetails.objects.all().order_by('id')
+        logger.info(f"Found {raw_data.count()} food items")
+        
+        data = []
+        for item in raw_data:
+            data.append({'id': item.id, 'name': item.name, 'stock_qty': item.stock_qty, 'price': item.price,
+                         'photo_url': item.photo_url,
+                         'rating': item.rating})
 
-
-
-        # #print(item.name)
-    # #print(data)
-    # #print(request.user)
-    # #print(request.GET.get('next'))
-
-    return render(request, 'index.html', {'data': data})
+        logger.info(f"Prepared data for {len(data)} items")
+        logger.info("Attempting to render index.html template...")
+        
+        return render(request, 'index.html', {'data': data})
+        
+    except Exception as e:
+        logger.error(f"Error in index view: {str(e)}", exc_info=True)
+        from django.http import HttpResponse
+        return HttpResponse(f"Error in index view: {str(e)}", status=500)
 
 
 from django.shortcuts import render
