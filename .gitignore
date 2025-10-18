@@ -24,3 +24,5 @@ docker-compose
 
 .kiro/
 vscode/
+
+static/
