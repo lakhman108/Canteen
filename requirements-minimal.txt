@@ -1,5 +1,5 @@
 # Core Django dependencies
-Django==4.1.13
+Django==4.2.28
 djangorestframework==3.15.1
 gunicorn==22.0.0
 
