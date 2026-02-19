@@ -13,7 +13,7 @@ python-dotenv==1.0.1
 whitenoise==6.6.0
 
 # Image handling (if needed by your models)
-pillow==10.3.0
+pillow==12.1.1
 
 # HTTP requests (used in views.py)
 requests==2.32.0
